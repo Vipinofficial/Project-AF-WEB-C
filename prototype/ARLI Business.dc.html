@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E9E2D1;font-family:'Instrument Sans',system-ui,sans-serif;color:#22201C;}
+*{box-sizing:border-box;}
+input,select,textarea,button{font-family:'Instrument Sans',system-ui,sans-serif;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,8px);}to{opacity:1;transform:translate(-50%,0);}}
+::placeholder{color:#9B937F;}
+.hscroll::-webkit-scrollbar{display:none;}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;">
+<x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="412px,892px">
+
+<div ref="{{ rootRef }}" style="min-height:100%;display:flex;flex-direction:column;background:#FAF5EC;">
+
+<!-- ===== HEADER ===== -->
+<header style="position:sticky;top:0;z-index:40;background:#22201C;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+  <span style="font-family:'Instrument Serif',serif;font-size:24px;color:#FAF5EC;">ARLI</span>
+  <span style="background:#E9A23B;color:#22201C;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:999px;">{{ t.bizBadge }}</span>
+  <div style="flex:1;"></div>
+  <button onClick="{{ toggleLang }}" style="background:none;border:1px solid #5C5546;font-size:12px;font-weight:600;color:#FAF5EC;cursor:pointer;padding:7px 12px;border-radius:999px;min-height:32px;">{{ langLabel }}</button>
+</header>
+
+<main style="flex:1;">
+
+<!-- ===== LOGIN ===== -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+  <div style="animation:fadeUp .35s ease both;padding:28px 16px;">
+    <div style="padding:8px 4px 22px;">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:30px;font-weight:400;margin:0 0 8px;line-height:1.12;">{{ t.welcomeTitle }}</h1>
+      <p style="font-size:13px;color:#5C5546;margin:0;line-height:1.55;text-wrap:pretty;">{{ t.welcomeSub }}</p>
+    </div>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:18px;padding:20px;">
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.phoneLabel }}</label>
+      <div style="display:flex;gap:8px;margin:6px 0 14px;">
+        <span style="border:1.5px solid #D8CDB4;border-radius:10px;padding:12px 10px;font-size:13px;background:#F5EFE1;color:#5C5546;font-weight:600;">+91</span>
+        <input value="{{ phone }}" onChange="{{ onPhone }}" placeholder="98765 43210" style="flex:1;min-width:0;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;" style-focus="border-color:#2A3B66;">
+      </div>
+      <button onClick="{{ sendOtp }}" style="width:100%;background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;min-height:48px;">{{ t.sendOtp }}</button>
+      <p style="font-size:11.5px;color:#8A8270;margin:12px 0 0;text-align:center;">{{ t.regNote }}</p>
+    </div>
+    <a href="ARLI Customer.dc.html" style="display:block;text-align:center;font-size:12px;color:#8A8270;text-decoration:underline;margin-top:18px;">{{ t.openCustomer }} ↗</a>
+  </div>
+</sc-if>
+
+<!-- ===== OTP ===== -->
+<sc-if value="{{ isOtp }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:28px 16px;">
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:18px;padding:22px;">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:25px;font-weight:400;margin:0 0 4px;">{{ t.otpTitle }}</h1>
+      <p style="font-size:12.5px;color:#8A8270;margin:0 0 4px;">{{ t.otpSub }} <b style="color:#22201C;">+91 {{ phone }}</b></p>
+      <p style="font-size:11px;color:#A5732A;margin:0 0 16px;">{{ t.otpHint }}</p>
+      <input value="{{ otp }}" onChange="{{ onOtp }}" maxLength="4" placeholder="• • • •" style="width:100%;border:1.5px solid #D8CDB4;border-radius:12px;padding:14px;font-size:24px;letter-spacing:14px;text-align:center;outline:none;font-weight:700;" style-focus="border-color:#2A3B66;">
+      <button onClick="{{ verifyOtp }}" style="width:100%;background:#C2492F;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;margin-top:14px;min-height:48px;">{{ t.verify }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== ONBOARDING WIZARD ===== -->
+<sc-if value="{{ isOnb }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:18px 16px;">
+    <div style="display:flex;gap:6px;margin-bottom:6px;">
+      <sc-for list="{{ onbDots }}" as="od" hint-placeholder-count="5">
+        <div style="flex:1;height:5px;border-radius:3px;background: {{ od.bg }};"></div>
+      </sc-for>
+    </div>
+    <p style="font-size:10.5px;font-weight:700;color:#A5732A;letter-spacing:1px;text-transform:uppercase;margin:0 0 6px;">{{ onbStepLabel }}</p>
+
+    <!-- STEP 1: TYPE -->
+    <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 16px;">{{ t.onbQ1 }}</h1>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+        <sc-for list="{{ bizTypeTiles }}" as="bt" hint-placeholder-count="6">
+          <button onClick="{{ bt.select }}" style="background: {{ bt.bg }};border:1.5px solid {{ bt.border }};border-radius:14px;padding:14px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:80px;">
+            <span style="font-size:22px;">{{ bt.icon }}</span>
+            <span style="font-size:11.5px;font-weight:700;color:#22201C;text-align:center;">{{ bt.label }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <button onClick="{{ onbNext }}" style="width:100%;background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;min-height:48px;">{{ t.continueBtn }}</button>
+    </sc-if>
+
+    <!-- STEP 2: SHOP -->
+    <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 16px;">{{ t.onbQ2 }}</h1>
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.shopNameLabel }}</label>
+      <input value="{{ shopName }}" onChange="{{ onShopName }}" placeholder="{{ t.shopNamePh }}" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 12px;" style-focus="border-color:#2A3B66;">
+      <textarea value="{{ shopDesc }}" onChange="{{ onShopDesc }}" placeholder="{{ t.shopDescPh }}" rows="2" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;resize:none;margin-bottom:12px;"></textarea>
+      <textarea value="{{ shopAddr }}" onChange="{{ onShopAddr }}" placeholder="{{ t.shopAddrPh }}" rows="2" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;resize:none;margin-bottom:12px;"></textarea>
+      <input value="{{ shopPin }}" onChange="{{ onShopPin }}" placeholder="{{ t.pincodePh }}" style="width:140px;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin-bottom:18px;">
+      <div style="display:flex;gap:10px;">
+        <button onClick="{{ onbBack }}" style="flex:1;background:#fff;color:#5C5546;border:1.5px solid #D8CDB4;font-size:13px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.backBtn }}</button>
+        <button onClick="{{ onbNext }}" style="flex:2;background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.continueBtn }}</button>
+      </div>
+    </sc-if>
+
+    <!-- STEP 3: TAX & GOVERNMENT -->
+    <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 4px;">{{ t.onbQ3 }}</h1>
+      <p style="font-size:12px;color:#8A8270;margin:0 0 16px;line-height:1.5;">{{ t.onbQ3Sub }}</p>
+
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">GSTIN</label>
+      <input value="{{ gstin }}" onChange="{{ onGstin }}" placeholder="22AAAAA0000A1Z5" maxLength="15" style="width:100%;border:1.5px solid {{ gstinBorder }};border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 6px;text-transform:uppercase;letter-spacing:1px;" style-focus="border-color:#2A3B66;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px;min-height:28px;">
+        <input type="checkbox" checked="{{ noGst }}" onChange="{{ toggleNoGst }}" style="width:18px;height:18px;accent-color:#2A3B66;cursor:pointer;">
+        <span style="font-size:12.5px;font-weight:600;">{{ t.noGstLabel }}</span>
+      </label>
+      <sc-if value="{{ noGst }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#FBF3E0;border:1px solid #E9A23B;border-radius:10px;padding:11px 13px;font-size:11.5px;line-height:1.55;color:#7A5A1E;margin-bottom:12px;">ℹ️ {{ t.noGstNote }}</div>
+      </sc-if>
+
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">PAN *</label>
+      <input value="{{ pan }}" onChange="{{ onPan }}" placeholder="ABCDE1234F" maxLength="10" style="width:100%;border:1.5px solid {{ panBorder }};border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 12px;text-transform:uppercase;letter-spacing:1px;" style-focus="border-color:#2A3B66;">
+
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.bizStructLabel }}</label>
+      <select value="{{ bizStruct }}" onChange="{{ onBizStruct }}" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 12px;background:#fff;">
+        <option value="prop">{{ t.structProp }}</option>
+        <option value="partner">{{ t.structPartner }}</option>
+        <option value="pvtltd">{{ t.structPvt }}</option>
+        <option value="self">{{ t.structSelf }}</option>
+      </select>
+
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.udyamLabel }}</label>
+      <input value="{{ udyam }}" onChange="{{ onUdyam }}" placeholder="UDYAM-XX-00-0000000" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 4px;text-transform:uppercase;">
+      <p style="font-size:11px;color:#8A8270;margin:0 0 18px;">{{ t.udyamNote }}</p>
+
+      <div style="display:flex;gap:10px;">
+        <button onClick="{{ onbBack }}" style="flex:1;background:#fff;color:#5C5546;border:1.5px solid #D8CDB4;font-size:13px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.backBtn }}</button>
+        <button onClick="{{ onbNext }}" style="flex:2;background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.continueBtn }}</button>
+      </div>
+    </sc-if>
+
+    <!-- STEP 4: BANK -->
+    <sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 4px;">{{ t.onbQ4 }}</h1>
+      <p style="font-size:12px;color:#8A8270;margin:0 0 16px;line-height:1.5;">{{ t.onbQ4Sub }}</p>
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.acctNameLabel }}</label>
+      <input value="{{ acctName }}" onChange="{{ onAcctName }}" placeholder="{{ t.acctNamePh }}" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 12px;">
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.acctNumLabel }}</label>
+      <input value="{{ acctNum }}" onChange="{{ onAcctNum }}" placeholder="000012345678" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 12px;">
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">IFSC</label>
+      <input value="{{ ifsc }}" onChange="{{ onIfsc }}" placeholder="HDFC0001234" maxLength="11" style="width:100%;border:1.5px solid {{ ifscBorder }};border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 12px;text-transform:uppercase;">
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.upiLabel }}</label>
+      <input value="{{ upi }}" onChange="{{ onUpi }}" placeholder="shop@upi" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;margin:5px 0 18px;">
+      <div style="display:flex;gap:10px;">
+        <button onClick="{{ onbBack }}" style="flex:1;background:#fff;color:#5C5546;border:1.5px solid #D8CDB4;font-size:13px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.backBtn }}</button>
+        <button onClick="{{ onbNext }}" style="flex:2;background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.continueBtn }}</button>
+      </div>
+    </sc-if>
+
+    <!-- STEP 5: REVIEW -->
+    <sc-if value="{{ isStep5 }}" hint-placeholder-val="{{ false }}">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 14px;">{{ t.onbQ5 }}</h1>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:6px 16px;margin-bottom:14px;">
+        <sc-for list="{{ reviewRows }}" as="rr" hint-placeholder-count="6">
+          <div style="display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:9px 0;border-bottom:1px solid #F0E8D6;">
+            <span style="color:#8A8270;font-weight:600;flex:none;">{{ rr.k }}</span>
+            <span style="font-weight:700;text-align:right;">{{ rr.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:16px;">
+        <input type="checkbox" checked="{{ declare }}" onChange="{{ toggleDeclare }}" style="width:18px;height:18px;accent-color:#2A3B66;cursor:pointer;flex:none;margin-top:1px;">
+        <span style="font-size:11.5px;line-height:1.5;color:#5C5546;">{{ t.declaration }}</span>
+      </label>
+      <div style="display:flex;gap:10px;">
+        <button onClick="{{ onbBack }}" style="flex:1;background:#fff;color:#5C5546;border:1.5px solid #D8CDB4;font-size:13px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.backBtn }}</button>
+        <button onClick="{{ submitApp }}" style="flex:2;background:#C2492F;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.submitBtn }}</button>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ===== SUBMITTED ===== -->
+<sc-if value="{{ isSubmitted }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:44px 16px;text-align:center;">
+    <div style="width:60px;height:60px;border-radius:50%;background:#2E7D5B;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">✓</div>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin:0 0 6px;">{{ t.submittedTitle }}</h1>
+    <p style="font-size:12.5px;color:#5C5546;margin:0 0 8px;line-height:1.55;">{{ t.submittedSub }}</p>
+    <p style="font-size:11.5px;color:#A5732A;font-weight:600;margin:0 0 24px;">⏳ {{ t.verify24 }}</p>
+    <button onClick="{{ goDash }}" style="background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px 26px;border-radius:12px;min-height:48px;">{{ t.goDash }}</button>
+  </div>
+</sc-if>
+
+<!-- ===== HOME (dashboard overview) ===== -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px 16px 8px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="width:44px;height:44px;border-radius:12px;background:#2A3B66;color:#FAF5EC;font-size:20px;display:flex;align-items:center;justify-content:center;flex:none;">{{ shopIcon }}</div>
+      <div style="flex:1;min-width:0;">
+        <h1 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:0;line-height:1.1;">{{ dashShopName }}</h1>
+        <span style="font-size:11px;color:#A5732A;font-weight:600;">★ 4.9 · {{ typeLabel }}</span>
+      </div>
+    </div>
+    <div style="background:#FBF3E0;border:1px solid #E9A23B;border-radius:12px;padding:11px 13px;font-size:11.5px;line-height:1.5;color:#7A5A1E;margin-bottom:14px;">⏳ <b>{{ t.pendingTitle }}</b> — {{ t.pendingNote }}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px;">
+        <div style="font-size:20px;font-weight:700;color:#2A3B66;">{{ todayOrders }}</div>
+        <div style="font-size:10px;color:#8A8270;font-weight:600;">{{ t.ordersToday }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px;">
+        <div style="font-size:20px;font-weight:700;color:#2A3B66;">{{ statViews }}</div>
+        <div style="font-size:10px;color:#8A8270;font-weight:600;">{{ t.statViews }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px;">
+        <div style="font-size:20px;font-weight:700;color:#2E7D5B;">₹{{ statRevenue }}</div>
+        <div style="font-size:10px;color:#8A8270;font-weight:600;">{{ t.statRevenue }}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+      <sc-for list="{{ quickActions }}" as="qa" hint-placeholder-count="4">
+        <button onClick="{{ qa.go }}" style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:52px;">
+          <span style="font-size:18px;">{{ qa.icon }}</span>
+          <span style="font-size:12.5px;font-weight:700;text-align:left;">{{ qa.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <h3 style="font-family:'Instrument Serif',serif;font-size:18px;font-weight:400;margin:0 0 10px;">{{ t.recentOrders }}</h3>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;padding:0 16px 16px;">
+    <sc-for list="{{ bizOrderRowsShort }}" as="o" hint-placeholder-count="2">
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:13px;font-weight:700;">{{ o.id }}</span>
+          <span style="background: {{ o.pillBg }};color: {{ o.pillFg }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">{{ o.statusLabel }}</span>
+          <span style="flex:1;"></span>
+          <span style="font-size:14px;font-weight:700;color:#2A3B66;">₹{{ o.amt }}</span>
+        </div>
+        <div style="font-size:12px;color:#5C5546;">{{ o.cust }} · {{ o.item }} × {{ o.qty }}</div>
+      </div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<!-- ===== ORDERS ===== -->
+<sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 12px;">{{ t.dashOrders }}</h1>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <sc-for list="{{ bizOrderRows }}" as="o" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:13px;font-weight:700;">{{ o.id }}</span>
+            <span style="background: {{ o.pillBg }};color: {{ o.pillFg }};font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">{{ o.statusLabel }}</span>
+            <span style="flex:1;"></span>
+            <span style="font-size:14px;font-weight:700;color:#2A3B66;">₹{{ o.amt }}</span>
+          </div>
+          <div style="font-size:12px;color:#5C5546;margin-bottom:6px;">{{ o.cust }} · {{ o.item }} × {{ o.qty }}</div>
+          <sc-if value="{{ o.meas }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:11px;color:#2A3B66;font-weight:600;margin-bottom:6px;">📏 {{ t.measAttached }}</div>
+          </sc-if>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="display:flex;gap:4px;flex:1;">
+              <sc-for list="{{ o.dots }}" as="d" hint-placeholder-count="5">
+                <span style="width:9px;height:9px;border-radius:50%;background: {{ d.bg }};"></span>
+              </sc-for>
+            </div>
+            <sc-if value="{{ o.canAdvance }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ o.advance }}" style="background:#2A3B66;color:#FAF5EC;border:none;font-size:11.5px;font-weight:700;cursor:pointer;padding:9px 13px;border-radius:9px;min-height:36px;">→ {{ o.nextLabel }}</button>
+            </sc-if>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button onClick="{{ o.invoice }}" style="flex:1;background:#fff;color:#5C5546;border:1px solid #D8CDB4;font-size:11px;font-weight:600;cursor:pointer;padding:9px;border-radius:8px;min-height:36px;">🧾 {{ t.invoiceBtn }}</button>
+            <button onClick="{{ o.slip }}" style="flex:1;background:#fff;color:#5C5546;border:1px solid #D8CDB4;font-size:11px;font-weight:600;cursor:pointer;padding:9px;border-radius:8px;min-height:36px;">📦 {{ t.slipBtn }}</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== LISTINGS ===== -->
+<sc-if value="{{ isListings }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 12px;">{{ t.dashListings }}</h1>
+    <div style="background:#fff;border:1.5px dashed #C9BC9C;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+      <input value="{{ newLName }}" onChange="{{ onNewLName }}" placeholder="{{ t.listingNamePh }}" style="width:100%;border:1.5px solid #D8CDB4;border-radius:9px;padding:10px 12px;font-size:13px;outline:none;">
+      <div style="display:flex;gap:8px;">
+        <input value="{{ newLPrice }}" onChange="{{ onNewLPrice }}" placeholder="{{ t.priceLabel }}" style="flex:1;min-width:0;border:1.5px solid #D8CDB4;border-radius:9px;padding:10px 12px;font-size:13px;outline:none;">
+        <button onClick="{{ addBizListing }}" style="background:#C2492F;color:#fff;border:none;font-size:12.5px;font-weight:700;cursor:pointer;padding:10px 16px;border-radius:9px;min-height:40px;">+ {{ t.addListing }}</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <sc-for list="{{ bizListingRows }}" as="l" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:9px;background: {{ l.swatch }};flex:none;"></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12.5px;font-weight:700;line-height:1.3;">{{ l.name }}</div>
+            <div style="font-size:10.5px;color:#A5732A;font-weight:600;">👁 {{ l.views }} {{ t.viewsWord }} · {{ l.stock }} {{ t.inStock }}</div>
+          </div>
+          <span style="font-size:13.5px;font-weight:700;color:#2A3B66;">₹{{ l.price }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== CHATS ===== -->
+<sc-if value="{{ isChats }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 12px;">{{ t.dashChats }}</h1>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <sc-for list="{{ bizChatRows }}" as="c" hint-placeholder-count="2">
+        <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#EDE4CF;color:#2A3B66;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;">{{ c.initial }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:13px;font-weight:700;">{{ c.cust }}</span>
+              <sc-if value="{{ c.unread }}" hint-placeholder-val="{{ false }}">
+                <span style="background:#C2492F;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;">{{ t.unreadWord }}</span>
+              </sc-if>
+            </div>
+            <span style="font-size:11.5px;color:#8A8270;">{{ c.last }}</span>
+          </div>
+          <button onClick="{{ c.reply }}" style="background:#EDF0F7;color:#2A3B66;border:1px solid #C6CFE3;font-size:11px;font-weight:700;cursor:pointer;padding:8px 11px;border-radius:999px;min-height:34px;">{{ t.replyBtn }}</button>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== MORE ===== -->
+<sc-if value="{{ isMore }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 12px;">{{ t.moreTitle }}</h1>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <sc-for list="{{ moreItems }}" as="mi" hint-placeholder-count="5">
+        <button onClick="{{ mi.go }}" style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;">
+          <span style="font-size:18px;">{{ mi.icon }}</span>
+          <span style="flex:1;font-size:13px;font-weight:700;text-align:left;">{{ mi.label }}</span>
+          <span style="color:#8A8270;">›</span>
+        </button>
+      </sc-for>
+      <a href="ARLI Customer.dc.html" style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;min-height:52px;text-decoration:none;color:#22201C;">
+        <span style="font-size:18px;">🛍️</span>
+        <span style="flex:1;font-size:13px;font-weight:700;">{{ t.openCustomer }}</span>
+        <span style="color:#8A8270;">↗</span>
+      </a>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== DESIGNS ===== -->
+<sc-if value="{{ isDesigns }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <button onClick="{{ goMore }}" style="background:none;border:none;color:#8A8270;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;margin-bottom:10px;">← {{ t.moreTitle }}</button>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 12px;">{{ t.dashDesigns }}</h1>
+    <div style="background:#fff;border:1.5px dashed #C9BC9C;border-radius:14px;padding:12px;display:flex;gap:8px;margin-bottom:12px;">
+      <input value="{{ newDesignName }}" onChange="{{ onNewDesignName }}" placeholder="{{ t.designNamePh }}" style="flex:1;min-width:0;border:1.5px solid #D8CDB4;border-radius:9px;padding:10px 12px;font-size:13px;outline:none;">
+      <button onClick="{{ addBizDesign }}" style="background:#C2492F;color:#fff;border:none;font-size:12.5px;font-weight:700;cursor:pointer;padding:10px 14px;border-radius:9px;min-height:40px;">+ {{ t.addDesign }}</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+      <sc-for list="{{ bizDesignTiles }}" as="dg" hint-placeholder-count="6">
+        <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;overflow:hidden;">
+          <div style="height:90px;background: {{ dg.swatch }};"></div>
+          <div style="padding:8px 10px;font-size:12px;font-weight:700;">{{ dg.name }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <h3 style="font-family:'Instrument Serif',serif;font-size:18px;font-weight:400;margin:0 0 10px;">{{ t.custRequests }}</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <sc-for list="{{ designReqRows }}" as="dr" hint-placeholder-count="2">
+        <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:9px;background: {{ dr.swatch }};flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;">📎</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12.5px;font-weight:700;">{{ dr.cust }}</div>
+            <div style="font-size:11px;color:#8A8270;">{{ dr.note }}</div>
+          </div>
+          <sc-if value="{{ dr.pending }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ dr.accept }}" style="background:#2E7D5B;color:#fff;border:none;font-size:11.5px;font-weight:700;cursor:pointer;padding:9px 13px;border-radius:9px;min-height:36px;">{{ t.acceptBtn }}</button>
+          </sc-if>
+          <sc-if value="{{ dr.accepted }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:11.5px;font-weight:700;color:#2E7D5B;">✓ {{ t.acceptedMark }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== ADS ===== -->
+<sc-if value="{{ isAds }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <button onClick="{{ goMore }}" style="background:none;border:none;color:#8A8270;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;margin-bottom:10px;">← {{ t.moreTitle }}</button>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:18px;">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;margin:0 0 4px;">{{ t.adsTitle }}</h2>
+      <p style="font-size:12px;color:#8A8270;margin:0 0 16px;line-height:1.5;text-wrap:pretty;">{{ t.adsSub }}</p>
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.dailyBudget }}: <span style="color:#2A3B66;font-size:14px;">₹{{ adBudget }}</span></label>
+      <input type="range" min="100" max="1000" step="50" value="{{ adBudget }}" onChange="{{ onAdBudget }}" style="width:100%;margin:10px 0 6px;accent-color:#C2492F;">
+      <p style="font-size:12px;color:#A5732A;font-weight:600;margin:0 0 14px;">≈ {{ adReach }} {{ t.estReach }}</p>
+      <button onClick="{{ adToggle }}" style="width:100%;background:#C2492F;color:#fff;border:none;font-size:13.5px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ adBtnLabel }}</button>
+      <sc-if value="{{ adActive }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;background:#FBF3E0;border:1px solid #E9A23B;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:600;color:#A5732A;">⚡ {{ t.adRunning }}</div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== ANALYTICS ===== -->
+<sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <button onClick="{{ goMore }}" style="background:none;border:none;color:#8A8270;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;margin-bottom:10px;">← {{ t.moreTitle }}</button>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 4px;">{{ t.dashStats }}</h1>
+    <p style="font-size:11px;color:#8A8270;margin:0 0 12px;">{{ t.last30 }}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+        <div style="font-size:23px;font-weight:700;color:#2A3B66;">{{ statViews }}</div>
+        <div style="font-size:11px;color:#8A8270;font-weight:600;">{{ t.statViews }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+        <div style="font-size:23px;font-weight:700;color:#2A3B66;">{{ statOrders }}</div>
+        <div style="font-size:11px;color:#8A8270;font-weight:600;">{{ t.statOrders }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+        <div style="font-size:23px;font-weight:700;color:#2E7D5B;">₹{{ statRevenue }}</div>
+        <div style="font-size:11px;color:#8A8270;font-weight:600;">{{ t.statRevenue }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+        <div style="font-size:23px;font-weight:700;color:#2A3B66;">36</div>
+        <div style="font-size:11px;color:#8A8270;font-weight:600;">{{ t.statChats }}</div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:16px;">
+      <h3 style="font-size:12.5px;font-weight:700;margin:0 0 12px;">{{ t.viewsPerListing }}</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-for list="{{ viewsBars }}" as="vb" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;">
+              <span style="font-weight:600;">{{ vb.name }}</span><span style="color:#A5732A;font-weight:700;">{{ vb.views }}</span>
+            </div>
+            <div style="height:8px;background:#F0E8D6;border-radius:4px;overflow:hidden;">
+              <div style="height:100%;width: {{ vb.pct }};background:linear-gradient(90deg,#2A3B66,#3A4E82);border-radius:4px;"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== COMPLIANCE ===== -->
+<sc-if value="{{ isCompliance }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <button onClick="{{ goMore }}" style="background:none;border:none;color:#8A8270;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;margin-bottom:10px;">← {{ t.moreTitle }}</button>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 12px;">{{ t.complianceTitle }}</h1>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:6px 16px;margin-bottom:12px;">
+      <sc-for list="{{ complianceRows }}" as="cr" hint-placeholder-count="5">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12.5px;padding:11px 0;border-bottom:1px solid #F0E8D6;">
+          <span style="color:#8A8270;font-weight:600;">{{ cr.k }}</span>
+          <span style="font-weight:700;color: {{ cr.color }};">{{ cr.v }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="background:#FBF3E0;border:1px solid #E9A23B;border-radius:12px;padding:11px 13px;font-size:11.5px;line-height:1.55;color:#7A5A1E;">ℹ️ {{ t.complianceNote }}</div>
+  </div>
+</sc-if>
+
+</main>
+
+<!-- ===== INVOICE / DELIVERY SLIP MODAL ===== -->
+<sc-if value="{{ invoiceOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(34,32,28,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#fff;border-radius:14px;width:100%;max-width:360px;max-height:86vh;overflow-y:auto;animation:fadeUp .3s ease both;">
+      <div style="padding:16px 20px;border-bottom:2px solid #22201C;display:flex;justify-content:space-between;align-items:baseline;">
+        <span style="font-family:'Instrument Serif',serif;font-size:21px;color:#2A3B66;">ARLI</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#C2492F;">{{ invTitle }}</span>
+      </div>
+      <div style="padding:14px 20px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:12px;">
+          <div>
+            <div style="font-weight:700;font-size:13px;">{{ dashShopName }}</div>
+            <div style="color:#8A8270;">{{ gstLine }}</div>
+          </div>
+          <div style="text-align:right;color:#5C5546;">
+            <div style="font-weight:700;">{{ invId }}</div>
+            <div>{{ invDate }}</div>
+          </div>
+        </div>
+        <div style="background:#FAF5EC;border-radius:9px;padding:10px 13px;font-size:12px;margin-bottom:12px;">
+          <div style="font-size:9.5px;font-weight:700;color:#8A8270;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">{{ invToLabel }}</div>
+          <div style="font-weight:700;">{{ invCust }}</div>
+          <sc-if value="{{ invIsSlip }}" hint-placeholder-val="{{ false }}">
+            <div style="color:#5C5546;">{{ invAddr }}</div>
+          </sc-if>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9.5px;font-weight:700;color:#8A8270;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #E4DBC8;padding-bottom:5px;margin-bottom:6px;">
+          <span>{{ t.itemWord }}</span><span>{{ t.amountWord }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;">
+          <span>{{ invItem }} × {{ invQty }}</span><span style="font-weight:600;">₹{{ invBase }}</span>
+        </div>
+        <sc-if value="{{ invShowGst }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#5C5546;padding:2px 0;">
+            <span>CGST 2.5%</span><span>₹{{ invGstHalf }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#5C5546;padding:2px 0;">
+            <span>SGST 2.5%</span><span>₹{{ invGstHalf }}</span>
+          </div>
+        </sc-if>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;border-top:2px solid #22201C;padding-top:8px;margin-top:6px;">
+          <span>{{ t.total }}</span><span style="color:#2A3B66;">₹{{ invAmt }}</span>
+        </div>
+        <p style="font-size:10.5px;color:#8A8270;margin:8px 0 0;">🏪 {{ t.payAtShopNote }}</p>
+        <sc-if value="{{ invIsSlip }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:20px;">
+            <div style="border-bottom:1.5px solid #22201C;width:150px;height:28px;"></div>
+            <div style="font-size:10px;color:#8A8270;margin-top:4px;">{{ t.signature }}</div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:12px 20px 16px;display:flex;gap:8px;">
+        <button onClick="{{ downloadDoc }}" style="flex:1;background:#2A3B66;color:#FAF5EC;border:none;font-size:12px;font-weight:700;cursor:pointer;padding:12px;border-radius:10px;min-height:44px;">⬇ {{ t.downloadBtn }}</button>
+        <button onClick="{{ closeInvoice }}" style="flex:1;background:#fff;color:#5C5546;border:1.5px solid #D8CDB4;font-size:12px;font-weight:700;cursor:pointer;padding:12px;border-radius:10px;min-height:44px;">{{ t.closeBtn }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- toast -->
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:sticky;bottom:76px;left:50%;transform:translateX(-50%);width:fit-content;background:#22201C;color:#FAF5EC;font-size:12.5px;font-weight:600;padding:11px 20px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);animation:toastIn .3s ease both;z-index:60;">{{ toastMsg }}</div>
+</sc-if>
+
+<!-- ===== BOTTOM NAV (main app only) ===== -->
+<sc-if value="{{ showNav }}" hint-placeholder-val="{{ false }}">
+  <nav style="position:sticky;bottom:0;z-index:50;background:#fff;border-top:1px solid #E4DBC8;display:flex;padding:6px 8px 8px;">
+    <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="5">
+      <button onClick="{{ tb.go }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:52px;position:relative;">
+        <span style="font-size:19px;filter: {{ tb.iconFilter }};">{{ tb.icon }}</span>
+        <span style="font-size:10px;font-weight:700;color: {{ tb.color }};">{{ tb.label }}</span>
+        <sc-if value="{{ tb.showBadge }}" hint-placeholder-val="{{ false }}">
+          <span style="position:absolute;top:2px;right:calc(50% - 20px);background:#C2492F;color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">{{ tb.badge }}</span>
+        </sc-if>
+      </button>
+    </sc-for>
+  </nav>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 480, &quot;height&quot;: 960}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login', lang: 'en',
+    phone: '', otp: '',
+    onbStep: 1, bizType: null,
+    shopName: '', shopDesc: '', shopAddr: '', shopPin: '',
+    gstin: '', noGst: false, pan: '', bizStruct: 'prop', udyam: '',
+    acctName: '', acctNum: '', ifsc: '', upi: '',
+    declare: false,
+    newLName: '', newLPrice: '', newDesignName: '',
+    adBudget: 200, adActive: false,
+    invoiceOrder: null, invoiceType: 'invoice',
+    toastMsg: '', toastShow: false,
+    bizOrders: [
+      { id: 'ARL-2412', cust: { en: 'Priya S.', hi: 'प्रिया S.' }, item: { en: 'Custom Kurta Stitching', hi: 'कस्टम कुर्ता सिलाई' }, qty: 1, amt: 1200, meas: true, status: 0 },
+      { id: 'ARL-2409', cust: { en: 'Sneha D.', hi: 'स्नेहा D.' }, item: { en: 'Anarkali suit (custom)', hi: 'अनारकली सूट (कस्टम)' }, qty: 1, amt: 2400, meas: true, status: 1 },
+      { id: 'ARL-2398', cust: { en: 'Rahul M.', hi: 'राहुल M.' }, item: { en: 'Blouse Stitching (lined)', hi: 'ब्लाउज़ सिलाई' }, qty: 2, amt: 1600, meas: true, status: 2 },
+      { id: 'ARL-2371', cust: { en: 'Fatima K.', hi: 'फ़ातिमा K.' }, item: { en: 'Chanderi Cotton — 3m', hi: 'चंदेरी कॉटन — 3मी' }, qty: 3, amt: 1260, meas: false, status: 4 },
+    ],
+    bizListings: [
+      { name: { en: 'Custom Kurta Stitching', hi: 'कस्टम कुर्ता सिलाई' }, price: 1200, stock: '—', views: 412, base: '#39597B', acc: '#48688A' },
+      { name: { en: 'Blouse Stitching (lined)', hi: 'ब्लाउज़ सिलाई (लाइनिंग)' }, price: 800, stock: '—', views: 296, base: '#8A5A3B', acc: '#9A6A4B' },
+      { name: { en: 'Chanderi Cotton (per meter)', hi: 'चंदेरी कॉटन (प्रति मीटर)' }, price: 420, stock: '42 m', views: 188, base: '#C9A96A', acc: '#D8BC82' },
+    ],
+    bizChats: [
+      { cust: { en: 'Priya S.', hi: 'प्रिया S.' }, last: { en: 'Can you deliver by Friday?', hi: 'क्या शुक्रवार तक मिल जाएगा?' }, unread: true },
+      { cust: { en: 'Amit V.', hi: 'अमित V.' }, last: { en: 'Shared measurements 📏', hi: 'नाप भेजा 📏' }, unread: false },
+    ],
+    bizDesigns: [
+      { name: { en: 'Anarkali suit', hi: 'अनारकली सूट' }, base: '#7A2E4D', acc: '#935071' },
+      { name: { en: 'Sherwani', hi: 'शेरवानी' }, base: '#2A3B66', acc: '#3A4E82' },
+      { name: { en: 'Lehenga', hi: 'लहंगा' }, base: '#B0473A', acc: '#C0574A' },
+      { name: { en: 'A-line kurta', hi: 'ए-लाइन कुर्ता' }, base: '#4E6B4B', acc: '#5E7C5A' },
+      { name: { en: 'Saree blouse', hi: 'साड़ी ब्लाउज़' }, base: '#8A5A3B', acc: '#9A6A4B' },
+      { name: { en: 'Palazzo set', hi: 'पलाज़ो सेट' }, base: '#31434F', acc: '#40525E' },
+    ],
+    designRequests: [
+      { cust: { en: 'Priya S.', hi: 'प्रिया S.' }, note: { en: 'Kurta like the attached photo, chest 38"', hi: 'भेजी गई फोटो जैसा कुर्ता, छाती 38"' }, accepted: false, base: '#9D9077' },
+      { cust: { en: 'Amit V.', hi: 'अमित V.' }, note: { en: 'Boat-neck blouse design, silk lining', hi: 'बोट-नेक ब्लाउज़ डिज़ाइन, सिल्क लाइनिंग' }, accepted: false, base: '#C9A96A' },
+    ],
+  };
+
+  T = {
+    en: {
+      bizBadge: 'Business',
+      welcomeTitle: 'Grow your shop on ARLI', welcomeSub: 'List your fabrics, garments and tailoring. Receive orders with digital measurements, chat with customers, and get discovered nearby.',
+      phoneLabel: 'Phone number', sendOtp: 'Send OTP', regNote: 'New here? Registration takes about 5 minutes.',
+      otpTitle: 'Enter OTP', otpSub: 'Code sent to', otpHint: 'Demo: any 4 digits work', verify: 'Verify & continue',
+      openCustomer: 'Open the customer app',
+      onbQ1: 'What kind of business are you?', onbQ2: 'Tell us about your shop',
+      onbQ3: 'Tax & government details', onbQ3Sub: 'Required by Indian marketplace rules. Your details are verified before payouts are enabled.',
+      onbQ4: 'Bank & payouts', onbQ4Sub: 'Where we send your money once online payments (Razorpay) go live. Orders are currently pay-at-shop.',
+      onbQ5: 'Review & submit',
+      shopNameLabel: 'Shop name', shopNamePh: 'e.g. Meera Tailors', shopDescPh: 'What do you sell or stitch?', shopAddrPh: 'Shop address (street, area, city)',
+      pincodePh: 'Pincode', continueBtn: 'Continue', backBtn: 'Back',
+      noGstLabel: 'I don\u2019t have a GSTIN yet',
+      noGstNote: 'Small sellers under ₹40 lakh annual turnover (₹20 lakh for services) can sell within their state without GST. You can add your GSTIN later — until then your shop shows a "GST pending" note and can\u2019t sell outside your state.',
+      bizStructLabel: 'Business structure', structProp: 'Sole proprietorship', structPartner: 'Partnership', structPvt: 'Private Limited', structSelf: 'Self-employed / artisan',
+      udyamLabel: 'Udyam (MSME) number — optional', udyamNote: 'Free MSME registration unlocks government scheme benefits.',
+      acctNameLabel: 'Account holder name', acctNamePh: 'As per bank records', acctNumLabel: 'Account number', upiLabel: 'UPI ID — optional',
+      declaration: 'I confirm the details above are correct, I am authorised to operate this business, and I agree to ARLI\u2019s seller terms, commission schedule and India\u2019s e-commerce consumer-protection rules (returns, grievance contact, no fake reviews).',
+      submitBtn: 'Submit application',
+      submittedTitle: 'Application submitted!', submittedSub: 'We verify your PAN, GSTIN and bank details with government records.', verify24: 'Verification usually completes within 24 hours',
+      goDash: 'Go to dashboard',
+      pendingTitle: 'Verification pending', pendingNote: 'your listings are live; payouts and the verified badge unlock after approval.',
+      ordersToday: 'Orders today', recentOrders: 'Recent orders',
+      dashOrders: 'Orders', dashListings: 'Listings', dashChats: 'Chats', dashDesigns: 'Designs', dashAds: 'Ads', dashStats: 'Analytics',
+      moreTitle: 'More', complianceTitle: 'Compliance & documents',
+      complianceNote: 'Keep your GSTIN active and file returns on time. ARLI issues a monthly commission invoice you can claim input credit on.',
+      measAttached: 'Measurements attached',
+      addListing: 'Add', listingNamePh: 'Listing name', priceLabel: 'Price (₹)', inStock: 'in stock', viewsWord: 'views',
+      adsTitle: 'Promote your listings', adsSub: 'Set a daily budget and your listings appear at the top of search, marked Sponsored.',
+      dailyBudget: 'Daily budget', startAd: 'Start ad', stopAd: 'Stop ad', adRunning: 'Ad running', estReach: 'est. daily views',
+      statViews: 'Listing views', statOrders: 'Total orders', statRevenue: 'Revenue', statChats: 'Chats started', last30: 'Last 30 days', viewsPerListing: 'Views per listing',
+      replyBtn: 'Reply', unreadWord: 'new',
+      custRequests: 'Customer design requests', acceptBtn: 'Accept', acceptedMark: 'Accepted', addDesign: 'Add', designNamePh: 'Design name',
+      invoiceBtn: 'Invoice', slipBtn: 'Delivery slip', invoiceTitle: 'TAX INVOICE', slipTitle: 'DELIVERY SLIP',
+      billedTo: 'Billed to', deliverTo: 'Deliver to', itemWord: 'Item', amountWord: 'Amount', total: 'Total',
+      downloadBtn: 'Download PDF', closeBtn: 'Close', signature: 'Receiver signature',
+      payAtShopNote: 'Pay at shop · cash or UPI on delivery', docDownloaded: 'Downloaded (demo)',
+      stPlaced: 'Placed', stAccepted: 'Accepted', stProgress: 'In progress', stReady: 'Ready', stDelivered: 'Delivered',
+      tabHome: 'Home', tabOrders: 'Orders', tabListings: 'Listings', tabChats: 'Chats', tabMore: 'More',
+      typeTailor: 'Tailor', typeWholesaler: 'Fabric wholesaler', typeBoutique: 'Boutique', typeDesigner: 'Fashion designer', typeGarment: 'Garment shop', typeWarehouse: 'Warehouse',
+      logout: 'Log out',
+      gstPending: 'GST pending', verified: 'Verified', pendingWord: 'Pending',
+    },
+    hi: {
+      bizBadge: 'बिज़नेस',
+      welcomeTitle: 'ARLI पर अपनी दुकान बढ़ाएँ', welcomeSub: 'अपने कपड़े, गारमेंट और सिलाई लिस्ट करें। डिजिटल नाप के साथ ऑर्डर पाएँ, ग्राहकों से चैट करें, और आस-पास के ग्राहकों तक पहुँचें।',
+      phoneLabel: 'फ़ोन नंबर', sendOtp: 'OTP भेजें', regNote: 'नए हैं? रजिस्ट्रेशन में लगभग 5 मिनट लगते हैं।',
+      otpTitle: 'OTP डालें', otpSub: 'कोड भेजा गया', otpHint: 'डेमो: कोई भी 4 अंक चलेंगे', verify: 'सत्यापित करें',
+      openCustomer: 'ग्राहक ऐप खोलें',
+      onbQ1: 'आपका व्यवसाय किस तरह का है?', onbQ2: 'अपनी दुकान के बारे में बताएँ',
+      onbQ3: 'टैक्स और सरकारी विवरण', onbQ3Sub: 'भारतीय मार्केटप्लेस नियमों के अनुसार ज़रूरी। भुगतान शुरू होने से पहले आपके विवरण सत्यापित होते हैं।',
+      onbQ4: 'बैंक और भुगतान', onbQ4Sub: 'ऑनलाइन भुगतान (Razorpay) शुरू होने पर आपका पैसा यहाँ आएगा। अभी ऑर्डर दुकान-पर-भुगतान हैं।',
+      onbQ5: 'जाँचें और सबमिट करें',
+      shopNameLabel: 'दुकान का नाम', shopNamePh: 'जैसे मीरा टेलर्स', shopDescPh: 'आप क्या बेचते या सिलते हैं?', shopAddrPh: 'दुकान का पता (गली, इलाक़ा, शहर)',
+      pincodePh: 'पिनकोड', continueBtn: 'आगे बढ़ें', backBtn: 'पीछे',
+      noGstLabel: 'मेरे पास अभी GSTIN नहीं है',
+      noGstNote: '₹40 लाख (सेवाओं के लिए ₹20 लाख) से कम सालाना टर्नओवर वाले छोटे विक्रेता अपने राज्य में बिना GST बेच सकते हैं। GSTIN बाद में जोड़ सकते हैं — तब तक दुकान पर "GST लंबित" नोट दिखेगा और राज्य के बाहर बिक्री नहीं होगी।',
+      bizStructLabel: 'व्यवसाय का ढांचा', structProp: 'एकल स्वामित्व', structPartner: 'साझेदारी', structPvt: 'प्राइवेट लिमिटेड', structSelf: 'स्व-रोज़गार / कारीगर',
+      udyamLabel: 'उद्यम (MSME) नंबर — वैकल्पिक', udyamNote: 'मुफ़्त MSME रजिस्ट्रेशन से सरकारी योजनाओं का लाभ मिलता है।',
+      acctNameLabel: 'खाताधारक का नाम', acctNamePh: 'बैंक रिकॉर्ड के अनुसार', acctNumLabel: 'खाता संख्या', upiLabel: 'UPI ID — वैकल्पिक',
+      declaration: 'मैं पुष्टि करता/करती हूँ कि ऊपर दिए विवरण सही हैं, मैं यह व्यवसाय चलाने के लिए अधिकृत हूँ, और ARLI की विक्रेता शर्तों, कमीशन और भारत के ई-कॉमर्स उपभोक्ता-संरक्षण नियमों (रिटर्न, शिकायत संपर्क, नकली समीक्षा नहीं) से सहमत हूँ।',
+      submitBtn: 'आवेदन सबमिट करें',
+      submittedTitle: 'आवेदन सबमिट हो गया!', submittedSub: 'हम आपका PAN, GSTIN और बैंक विवरण सरकारी रिकॉर्ड से सत्यापित करते हैं।', verify24: 'सत्यापन आमतौर पर 24 घंटे में पूरा होता है',
+      goDash: 'डैशबोर्ड खोलें',
+      pendingTitle: 'सत्यापन लंबित', pendingNote: 'आपकी लिस्टिंग लाइव हैं; भुगतान और वेरिफ़ाइड बैज मंज़ूरी के बाद मिलेंगे।',
+      ordersToday: 'आज के ऑर्डर', recentOrders: 'हाल के ऑर्डर',
+      dashOrders: 'ऑर्डर', dashListings: 'लिस्टिंग', dashChats: 'चैट', dashDesigns: 'डिज़ाइन', dashAds: 'विज्ञापन', dashStats: 'एनालिटिक्स',
+      moreTitle: 'और', complianceTitle: 'अनुपालन और दस्तावेज़',
+      complianceNote: 'अपना GSTIN सक्रिय रखें और समय पर रिटर्न भरें। ARLI हर महीने कमीशन इनवॉइस देता है जिस पर आप इनपुट क्रेडिट ले सकते हैं।',
+      measAttached: 'नाप जुड़ा है',
+      addListing: 'जोड़ें', listingNamePh: 'लिस्टिंग का नाम', priceLabel: 'क़ीमत (₹)', inStock: 'स्टॉक में', viewsWord: 'व्यू',
+      adsTitle: 'अपनी लिस्टिंग प्रमोट करें', adsSub: 'दैनिक बजट तय करें और आपकी लिस्टिंग सर्च में सबसे ऊपर "प्रायोजित" दिखेगी।',
+      dailyBudget: 'दैनिक बजट', startAd: 'विज्ञापन शुरू करें', stopAd: 'विज्ञापन रोकें', adRunning: 'विज्ञापन चल रहा है', estReach: 'अनुमानित दैनिक व्यू',
+      statViews: 'लिस्टिंग व्यू', statOrders: 'कुल ऑर्डर', statRevenue: 'आय', statChats: 'चैट शुरू हुईं', last30: 'पिछले 30 दिन', viewsPerListing: 'हर लिस्टिंग के व्यू',
+      replyBtn: 'जवाब दें', unreadWord: 'नई',
+      custRequests: 'ग्राहकों के डिज़ाइन अनुरोध', acceptBtn: 'स्वीकारें', acceptedMark: 'स्वीकृत', addDesign: 'जोड़ें', designNamePh: 'डिज़ाइन का नाम',
+      invoiceBtn: 'इनवॉइस', slipBtn: 'डिलीवरी स्लिप', invoiceTitle: 'टैक्स इनवॉइस', slipTitle: 'डिलीवरी स्लिप',
+      billedTo: 'बिल प्राप्तकर्ता', deliverTo: 'डिलीवरी पता', itemWord: 'आइटम', amountWord: 'राशि', total: 'कुल',
+      downloadBtn: 'PDF डाउनलोड', closeBtn: 'बंद करें', signature: 'प्राप्तकर्ता के हस्ताक्षर',
+      payAtShopNote: 'दुकान पर भुगतान · डिलीवरी पर नकद या UPI', docDownloaded: 'डाउनलोड हो गया (डेमो)',
+      stPlaced: 'प्लेस्ड', stAccepted: 'स्वीकृत', stProgress: 'बन रहा है', stReady: 'तैयार', stDelivered: 'डिलीवर',
+      tabHome: 'होम', tabOrders: 'ऑर्डर', tabListings: 'लिस्टिंग', tabChats: 'चैट', tabMore: 'और',
+      typeTailor: 'दर्ज़ी', typeWholesaler: 'कपड़ा थोक विक्रेता', typeBoutique: 'बुटीक', typeDesigner: 'फ़ैशन डिज़ाइनर', typeGarment: 'गारमेंट दुकान', typeWarehouse: 'वेयरहाउस',
+      logout: 'लॉग आउट',
+      gstPending: 'GST लंबित', verified: 'सत्यापित', pendingWord: 'लंबित',
+    }
+  };
+
+  weave(base, accent) {
+    return 'repeating-linear-gradient(45deg,' + base + ' 0px,' + base + ' 9px,' + accent + ' 9px,' + accent + ' 11px)';
+  }
+
+  toast(msg) {
+    this.setState({ toastMsg: msg, toastShow: true });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(() => this.setState({ toastShow: false }), 2600);
+  }
+
+  componentWillUnmount() { clearTimeout(this._tt); }
+
+  scrollTop() {
+    let node = this._root;
+    while (node) { if (node.scrollTop) node.scrollTop = 0; node = node.parentElement; }
+  }
+
+  go(screen) { this.setState({ screen }); setTimeout(() => this.scrollTop(), 30); }
+
+  renderVals() {
+    const s = this.state, lang = s.lang, t = this.T[lang];
+    const st = (obj) => this.setState(obj);
+    const statusLabels = [t.stPlaced, t.stAccepted, t.stProgress, t.stReady, t.stDelivered];
+
+    const typesDef = [
+      { k: 'tailor', icon: '✂️', label: t.typeTailor },
+      { k: 'wholesaler', icon: '🧵', label: t.typeWholesaler },
+      { k: 'boutique', icon: '👗', label: t.typeBoutique },
+      { k: 'designer', icon: '✏️', label: t.typeDesigner },
+      { k: 'garment', icon: '🏬', label: t.typeGarment },
+      { k: 'warehouse', icon: '📦', label: t.typeWarehouse },
+    ];
+    const bizTypeTiles = typesDef.map(b => ({
+      icon: b.icon, label: b.label,
+      border: s.bizType === b.k ? '#2A3B66' : '#E4DBC8',
+      bg: s.bizType === b.k ? '#EDF0F7' : '#fff',
+      select: () => st({ bizType: b.k }),
+    }));
+    const typeDef = typesDef.find(x => x.k === s.bizType) || typesDef[0];
+
+    const gstinOk = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/.test(s.gstin);
+    const panOk = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(s.pan);
+    const ifscOk = /^[A-Z]{4}0[A-Z0-9]{6}$/.test(s.ifsc);
+
+    const err = (msg) => this.toast(msg);
+    const onbNext = () => {
+      if (s.onbStep === 1) {
+        if (!s.bizType) return err(lang === 'hi' ? 'एक प्रकार चुनें' : 'Pick a business type');
+      } else if (s.onbStep === 2) {
+        if (!s.shopName.trim()) return err(lang === 'hi' ? 'दुकान का नाम डालें' : 'Enter your shop name');
+        if (s.shopPin.trim().length !== 6) return err(lang === 'hi' ? '6 अंकों का पिनकोड डालें' : 'Enter a 6-digit pincode');
+      } else if (s.onbStep === 3) {
+        if (!s.noGst && !gstinOk) return err(lang === 'hi' ? 'सही GSTIN डालें या "GSTIN नहीं है" चुनें' : 'Enter a valid GSTIN or tick "no GSTIN"');
+        if (!panOk) return err(lang === 'hi' ? 'सही PAN डालें (जैसे ABCDE1234F)' : 'Enter a valid PAN (e.g. ABCDE1234F)');
+      } else if (s.onbStep === 4) {
+        if (!s.acctName.trim()) return err(lang === 'hi' ? 'खाताधारक का नाम डालें' : 'Enter the account holder name');
+        if (s.acctNum.replace(/\D/g, '').length < 9) return err(lang === 'hi' ? 'सही खाता संख्या डालें' : 'Enter a valid account number');
+        if (!ifscOk) return err(lang === 'hi' ? 'सही IFSC डालें (जैसे HDFC0001234)' : 'Enter a valid IFSC (e.g. HDFC0001234)');
+      }
+      st({ onbStep: s.onbStep + 1 });
+      setTimeout(() => this.scrollTop(), 30);
+    };
+
+    const structLabels = { prop: t.structProp, partner: t.structPartner, pvtltd: t.structPvt, self: t.structSelf };
+    const mask = (v) => v.length > 4 ? '••••' + v.slice(-4) : v;
+    const reviewRows = [
+      { k: t.onbQ1, v: typeDef.label },
+      { k: t.shopNameLabel, v: s.shopName + ' · ' + s.shopPin },
+      { k: 'GSTIN', v: s.noGst ? t.gstPending : s.gstin },
+      { k: 'PAN', v: mask(s.pan) },
+      { k: t.bizStructLabel, v: structLabels[s.bizStruct] },
+      { k: t.acctNumLabel, v: mask(s.acctNum) + ' · ' + s.ifsc },
+    ];
+
+    const bizOrderRows = s.bizOrders.map((o, i) => ({
+      id: o.id, cust: o.cust[lang], item: o.item[lang], qty: o.qty, amt: o.amt, meas: o.meas,
+      statusLabel: statusLabels[o.status],
+      pillBg: o.status === 4 ? '#E3F2EA' : '#FBF3E0', pillFg: o.status === 4 ? '#2E7D5B' : '#A5732A',
+      canAdvance: o.status < 4,
+      nextLabel: o.status < 4 ? statusLabels[o.status + 1] : '',
+      dots: statusLabels.map((_, d) => ({ bg: d <= o.status ? '#2E7D5B' : '#E4DBC8' })),
+      advance: () => st({ bizOrders: s.bizOrders.map((x, j) => j === i ? { ...x, status: Math.min(4, x.status + 1) } : x) }),
+      invoice: () => st({ invoiceOrder: o, invoiceType: 'invoice' }),
+      slip: () => st({ invoiceOrder: o, invoiceType: 'slip' }),
+    }));
+
+    const bizListingRows = s.bizListings.map(l => ({
+      name: l.name[lang], price: l.price, stock: l.stock, views: l.views,
+      swatch: this.weave(l.base, l.acc),
+    }));
+    const maxViews = Math.max(...s.bizListings.map(l => l.views), 1);
+    const viewsBars = s.bizListings.map(l => ({ name: l.name[lang], views: l.views, pct: Math.round(l.views / maxViews * 100) + '%' }));
+
+    const bizChatRows = s.bizChats.map((c, i) => ({
+      cust: c.cust[lang], last: c.last[lang], unread: c.unread, initial: c.cust.en[0],
+      reply: () => st({ bizChats: s.bizChats.map((x, j) => j === i ? { ...x, unread: false, last: { en: 'You: Sure ji! 🙏', hi: 'आप: जी, बिल्कुल! 🙏' } } : x) }),
+    }));
+
+    const bizDesignTiles = s.bizDesigns.map(d => ({ name: d.name[lang], swatch: this.weave(d.base, d.acc) }));
+    const designReqRows = s.designRequests.map((r, i) => ({
+      cust: r.cust[lang], note: r.note[lang], pending: !r.accepted, accepted: r.accepted,
+      swatch: this.weave(r.base, r.base),
+      accept: () => st({ designRequests: s.designRequests.map((x, j) => j === i ? { ...x, accepted: true } : x) }),
+    }));
+
+    const mainTabs = ['home', 'orders', 'listings', 'chats', 'more'];
+    const subScreens = ['designs', 'ads', 'stats', 'compliance'];
+    const showNav = mainTabs.includes(s.screen) || subScreens.includes(s.screen);
+    const unreadCount = s.bizChats.filter(c => c.unread).length;
+    const navActive = subScreens.includes(s.screen) ? 'more' : s.screen;
+    const mkTab = (key, icon, label, badge) => ({
+      icon, label, badge, showBadge: !!badge,
+      color: navActive === key ? '#C2492F' : '#8A8270',
+      iconFilter: navActive === key ? 'none' : 'grayscale(1) opacity(.6)',
+      go: () => this.go(key),
+    });
+    const tabs = [
+      mkTab('home', '🏠', t.tabHome, 0),
+      mkTab('orders', '📦', t.tabOrders, s.bizOrders.filter(o => o.status < 4).length),
+      mkTab('listings', '🏷️', t.tabListings, 0),
+      mkTab('chats', '💬', t.tabChats, unreadCount),
+      mkTab('more', '⋯', t.tabMore, 0),
+    ];
+
+    const moreItems = [
+      { icon: '✂️', label: t.dashDesigns, go: () => this.go('designs') },
+      { icon: '⚡', label: t.dashAds, go: () => this.go('ads') },
+      { icon: '📊', label: t.dashStats, go: () => this.go('stats') },
+      { icon: '🏛️', label: t.complianceTitle, go: () => this.go('compliance') },
+      { icon: '🚪', label: t.logout, go: () => this.go('login') },
+    ];
+
+    const quickActions = [
+      { icon: '🏷️', label: t.addListing + ' — ' + t.dashListings, go: () => this.go('listings') },
+      { icon: '⚡', label: t.dashAds, go: () => this.go('ads') },
+      { icon: '✂️', label: t.dashDesigns, go: () => this.go('designs') },
+      { icon: '🏛️', label: t.complianceTitle, go: () => this.go('compliance') },
+    ];
+
+    const complianceRows = [
+      { k: 'PAN', v: '✓ ' + mask(s.pan || 'ABCDE1234F'), color: '#2E7D5B' },
+      { k: 'GSTIN', v: s.noGst || !s.gstin ? t.gstPending : '✓ ' + s.gstin, color: s.noGst || !s.gstin ? '#A5732A' : '#2E7D5B' },
+      { k: t.acctNumLabel, v: '✓ ' + mask(s.acctNum || '000012345678'), color: '#2E7D5B' },
+      { k: 'Udyam / MSME', v: s.udyam ? '✓ ' + s.udyam : '—', color: s.udyam ? '#2E7D5B' : '#8A8270' },
+      { k: t.pendingTitle, v: '⏳ ' + t.pendingWord, color: '#A5732A' },
+    ];
+
+    const inv = s.invoiceOrder;
+    const hasGstInvoice = !s.noGst && !!s.gstin;
+    const invBase = inv ? (hasGstInvoice ? Math.round(inv.amt / 1.05) : inv.amt) : 0;
+    const invGstHalf = inv ? Math.round((inv.amt - invBase) / 2) : 0;
+
+    return {
+      t, langLabel: lang === 'en' ? 'हिंदी' : 'Eng',
+      toggleLang: () => st({ lang: lang === 'en' ? 'hi' : 'en' }),
+      rootRef: (el) => { this._root = el; },
+
+      isLogin: s.screen === 'login', isOtp: s.screen === 'otp', isOnb: s.screen === 'onb', isSubmitted: s.screen === 'submitted',
+      isHome: s.screen === 'home', isOrders: s.screen === 'orders', isListings: s.screen === 'listings',
+      isChats: s.screen === 'chats', isMore: s.screen === 'more',
+      isDesigns: s.screen === 'designs', isAds: s.screen === 'ads', isStats: s.screen === 'stats', isCompliance: s.screen === 'compliance',
+      showNav, tabs, moreItems, quickActions,
+      goMore: () => this.go('more'), goDash: () => this.go('home'),
+
+      phone: s.phone, onPhone: e => st({ phone: e.target.value }),
+      sendOtp: () => { if (s.phone.trim().length >= 10) this.go('otp'); else this.toast(lang === 'hi' ? '10 अंकों का नंबर डालें' : 'Enter a 10-digit number'); },
+      otp: s.otp, onOtp: e => st({ otp: e.target.value.replace(/\D/g, '').slice(0, 4) }),
+      verifyOtp: () => { if (s.otp.length === 4) { st({ onbStep: 1 }); this.go('onb'); } else this.toast(lang === 'hi' ? '4 अंक डालें' : 'Enter 4 digits'); },
+
+      onbDots: [1, 2, 3, 4, 5].map(n => ({ bg: n <= s.onbStep ? '#2A3B66' : '#E4DBC8' })),
+      onbStepLabel: (lang === 'hi' ? 'चरण ' : 'Step ') + s.onbStep + (lang === 'hi' ? ' / 5' : ' of 5'),
+      isStep1: s.onbStep === 1, isStep2: s.onbStep === 2, isStep3: s.onbStep === 3, isStep4: s.onbStep === 4, isStep5: s.onbStep === 5,
+      onbNext, onbBack: () => st({ onbStep: Math.max(1, s.onbStep - 1) }),
+      bizTypeTiles,
+      shopName: s.shopName, onShopName: e => st({ shopName: e.target.value }),
+      shopDesc: s.shopDesc, onShopDesc: e => st({ shopDesc: e.target.value }),
+      shopAddr: s.shopAddr, onShopAddr: e => st({ shopAddr: e.target.value }),
+      shopPin: s.shopPin, onShopPin: e => st({ shopPin: e.target.value.replace(/\D/g, '').slice(0, 6) }),
+
+      gstin: s.gstin, onGstin: e => st({ gstin: e.target.value.toUpperCase().slice(0, 15) }),
+      gstinBorder: !s.gstin || gstinOk ? '#D8CDB4' : '#C2492F',
+      noGst: s.noGst, toggleNoGst: e => st({ noGst: e.target.checked }),
+      pan: s.pan, onPan: e => st({ pan: e.target.value.toUpperCase().slice(0, 10) }),
+      panBorder: !s.pan || panOk ? '#D8CDB4' : '#C2492F',
+      bizStruct: s.bizStruct, onBizStruct: e => st({ bizStruct: e.target.value }),
+      udyam: s.udyam, onUdyam: e => st({ udyam: e.target.value.toUpperCase() }),
+
+      acctName: s.acctName, onAcctName: e => st({ acctName: e.target.value }),
+      acctNum: s.acctNum, onAcctNum: e => st({ acctNum: e.target.value.replace(/\D/g, '') }),
+      ifsc: s.ifsc, onIfsc: e => st({ ifsc: e.target.value.toUpperCase().slice(0, 11) }),
+      ifscBorder: !s.ifsc || ifscOk ? '#D8CDB4' : '#C2492F',
+      upi: s.upi, onUpi: e => st({ upi: e.target.value }),
+
+      reviewRows,
+      declare: s.declare, toggleDeclare: e => st({ declare: e.target.checked }),
+      submitApp: () => {
+        if (!s.declare) return this.toast(lang === 'hi' ? 'घोषणा स्वीकारें' : 'Please accept the declaration');
+        this.go('submitted');
+      },
+
+      dashShopName: s.shopName.trim() || (lang === 'hi' ? 'मीरा टेलर्स' : 'Meera Tailors'),
+      shopIcon: typeDef.icon, typeLabel: typeDef.label,
+      todayOrders: 3,
+      bizOrderRows, bizOrderRowsShort: bizOrderRows.slice(0, 2),
+      bizListingRows, viewsBars, bizChatRows, bizDesignTiles, designReqRows, complianceRows,
+      newLName: s.newLName, onNewLName: e => st({ newLName: e.target.value }),
+      newLPrice: s.newLPrice, onNewLPrice: e => st({ newLPrice: e.target.value }),
+      addBizListing: () => {
+        if (!s.newLName.trim() || !s.newLPrice) { this.toast(lang === 'hi' ? 'नाम और क़ीमत डालें' : 'Enter a name and price'); return; }
+        st({ bizListings: [...s.bizListings, { name: { en: s.newLName, hi: s.newLName }, price: Number(s.newLPrice), stock: '—', views: 0, base: '#5B6B4E', acc: '#6B7B5E' }], newLName: '', newLPrice: '' });
+        this.toast(lang === 'hi' ? 'लिस्टिंग जुड़ गई' : 'Listing added');
+      },
+      newDesignName: s.newDesignName, onNewDesignName: e => st({ newDesignName: e.target.value }),
+      addBizDesign: () => {
+        if (!s.newDesignName.trim()) { this.toast(lang === 'hi' ? 'डिज़ाइन का नाम डालें' : 'Enter a design name'); return; }
+        st({ bizDesigns: [...s.bizDesigns, { name: { en: s.newDesignName, hi: s.newDesignName }, base: '#5B6B4E', acc: '#6B7B5E' }], newDesignName: '' });
+        this.toast(lang === 'hi' ? 'डिज़ाइन जुड़ गया' : 'Design added');
+      },
+      adBudget: s.adBudget, onAdBudget: e => st({ adBudget: Number(e.target.value) }),
+      adActive: s.adActive, adToggle: () => st({ adActive: !s.adActive }),
+      adReach: s.adBudget * 12, adBtnLabel: s.adActive ? t.stopAd : t.startAd,
+      statViews: s.bizListings.reduce((a, l) => a + l.views, 0),
+      statOrders: s.bizOrders.length,
+      statRevenue: s.bizOrders.reduce((a, o) => a + o.amt, 0),
+
+      invoiceOpen: !!inv,
+      invTitle: s.invoiceType === 'slip' ? t.slipTitle : t.invoiceTitle,
+      invIsSlip: s.invoiceType === 'slip',
+      invToLabel: s.invoiceType === 'slip' ? t.deliverTo : t.billedTo,
+      invId: inv ? inv.id : '', invCust: inv ? inv.cust[lang] : '', invItem: inv ? inv.item[lang] : '',
+      invQty: inv ? inv.qty : '', invAmt: inv ? inv.amt : '',
+      invShowGst: hasGstInvoice && s.invoiceType !== 'slip',
+      invBase, invGstHalf,
+      gstLine: hasGstInvoice ? 'GSTIN: ' + s.gstin : t.gstPending + ' · PAN: ' + mask(s.pan || 'ABCDE1234F'),
+      invDate: lang === 'hi' ? '6 जुलाई 2026' : '6 Jul 2026',
+      invAddr: lang === 'hi' ? '12, गांधी रोड, करोल बाग़, दिल्ली' : '12, Gandhi Road, Karol Bagh, Delhi',
+      downloadDoc: () => this.toast(t.docDownloaded),
+      closeInvoice: () => st({ invoiceOrder: null }),
+
+      toastShow: s.toastShow, toastMsg: s.toastMsg,
+    };
+  }
+}
+</script>
+</body>
+</html>

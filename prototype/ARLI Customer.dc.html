@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E9E2D1;font-family:'Instrument Sans',system-ui,sans-serif;color:#22201C;}
+*{box-sizing:border-box;}
+input,select,textarea,button{font-family:'Instrument Sans',system-ui,sans-serif;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,8px);}to{opacity:1;transform:translate(-50%,0);}}
+::placeholder{color:#9B937F;}
+.hscroll::-webkit-scrollbar{display:none;}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;">
+<x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="412px,892px">
+
+<div ref="{{ rootRef }}" style="min-height:100%;display:flex;flex-direction:column;background:#FAF5EC;">
+
+<!-- ===== APP HEADER ===== -->
+<header style="position:sticky;top:0;z-index:40;background:#FAF5ECF2;backdrop-filter:blur(8px);border-bottom:1px solid #E4DBC8;padding:10px 16px 8px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span onClick="{{ goHome }}" style="font-family:'Instrument Serif',serif;font-size:24px;color:#2A3B66;cursor:pointer;">ARLI</span>
+    <span style="font-size:9px;color:#8A8270;letter-spacing:1.2px;text-transform:uppercase;">{{ t.tagline }}</span>
+    <div style="flex:1;"></div>
+    <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+      <span style="font-size:11px;color:#A5732A;font-weight:700;background:#F5EFE1;padding:6px 10px;border-radius:999px;">★ {{ points }}</span>
+    </sc-if>
+    <button onClick="{{ toggleLang }}" style="background:#fff;border:1px solid #D8CDB4;font-size:12px;font-weight:600;color:#2A3B66;cursor:pointer;padding:7px 12px;border-radius:999px;min-height:32px;">{{ langLabel }}</button>
+  </div>
+  <div style="display:flex;gap:6px;background:#fff;border:1.5px solid #D8CDB4;border-radius:999px;padding:2px 2px 2px 14px;align-items:center;margin-top:8px;">
+    <input value="{{ query }}" onChange="{{ onQuery }}" onKeyDown="{{ onSearchKey }}" placeholder="{{ t.searchPh }}" style="flex:1;border:none;outline:none;font-size:13px;background:transparent;min-width:0;">
+    <button onClick="{{ doSearch }}" style="background:#2A3B66;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;padding:8px 14px;border-radius:999px;min-height:34px;">{{ t.searchBtn }}</button>
+  </div>
+</header>
+
+<main style="flex:1;">
+
+<!-- ===== HOME ===== -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="animation:fadeUp .35s ease both;">
+    <div style="position:relative;height:230px;overflow:hidden;background:#22201C;">
+      {{ bannerMedia }}
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,18,14,.15) 0%,rgba(20,18,14,.72) 100%);"></div>
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:6px;padding:16px 16px 30px;">
+        <span style="display:inline-flex;background:#E9A23B;color:#22201C;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 9px;border-radius:999px;">{{ bannerTag }}</span>
+        <h1 style="font-family:'Instrument Serif',serif;font-size:24px;line-height:1.1;margin:0;color:#FAF5EC;font-weight:400;max-width:300px;">{{ bannerTitle }}</h1>
+        <button onClick="{{ bannerCta }}" style="background:#C2492F;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;padding:9px 16px;border-radius:9px;margin-top:4px;min-height:38px;">{{ bannerCtaLabel }} →</button>
+      </div>
+      <div style="position:absolute;bottom:10px;left:16px;display:flex;gap:6px;">
+        <sc-for list="{{ bannerDots }}" as="bd" hint-placeholder-count="3">
+          <button onClick="{{ bd.select }}" style="width: {{ bd.w }};height:6px;border-radius:3px;background: {{ bd.bg }};border:none;cursor:pointer;padding:0;transition:all .3s ease;"></button>
+        </sc-for>
+      </div>
+      <button onClick="{{ bannerNext }}" style="position:absolute;right:10px;bottom:6px;width:32px;height:32px;border-radius:50%;background:rgba(250,245,236,.85);border:none;font-size:14px;cursor:pointer;color:#22201C;">›</button>
+    </div>
+
+    <div style="background:#2A3B66;padding:12px 16px 14px;">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#E9A23B;">{{ t.offersLabel }}</span>
+        <div style="flex:1;height:1px;background:rgba(250,245,236,.15);"></div>
+      </div>
+      <div style="display:flex;gap:8px;overflow-x:auto;" class="hscroll">
+        <sc-for list="{{ offerCards }}" as="oc" hint-placeholder-count="3">
+          <div style="flex:none;width:230px;background:rgba(250,245,236,.06);border:1px dashed rgba(233,162,59,.45);border-radius:11px;padding:10px 13px;display:flex;align-items:center;gap:10px;">
+            <span style="font-family:'Instrument Serif',serif;font-size:18px;color:#E9A23B;flex:none;line-height:1;">{{ oc.mark }}</span>
+            <div style="min-width:0;">
+              <div style="font-size:11.5px;font-weight:700;color:#FAF5EC;line-height:1.3;">{{ oc.title }}</div>
+              <div style="font-size:10px;color:#B8C0D6;margin-top:1px;">{{ oc.sub }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:20px 16px 8px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <sc-for list="{{ heroTiles }}" as="ht" hint-placeholder-count="4">
+        <div onClick="{{ ht.go }}" style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;min-height:64px;">
+          <div style="width:40px;height:40px;border-radius:50%;background: {{ ht.swatch }};flex:none;border:2px solid #FAF5EC;box-shadow:0 0 0 1.5px #E4DBC8;"></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Instrument Serif',serif;font-size:15px;color:#22201C;line-height:1.15;">{{ ht.label }}</div>
+            <div style="font-size:10px;color:#8A8270;font-weight:600;margin-top:1px;">{{ ht.count }}</div>
+          </div>
+          <span style="font-size:13px;color:#C2492F;font-weight:700;flex:none;">→</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="padding:16px 16px 6px;display:flex;align-items:baseline;justify-content:space-between;">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:0;">{{ t.featuredTitle }}</h2>
+      <button onClick="{{ goExplore }}" style="background:none;border:none;color:#C2492F;font-size:12.5px;font-weight:700;cursor:pointer;">{{ t.viewAll }} →</button>
+    </div>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding:8px 16px 20px;" class="hscroll">
+      <sc-for list="{{ featured }}" as="item" hint-placeholder-count="4">
+        <div onClick="{{ item.open }}" style="flex:none;width:170px;background:#fff;border:1px solid #E4DBC8;border-radius:14px;overflow:hidden;cursor:pointer;">
+          <div style="height:110px;background: {{ item.swatch }};position:relative;">
+            <sc-if value="{{ item.sponsored }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:8px;left:8px;background:#E9A23B;color:#22201C;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;">{{ t.sponsored }}</span>
+            </sc-if>
+          </div>
+          <div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:12.5px;font-weight:600;line-height:1.3;">{{ item.name }}</span>
+            <span style="font-size:10.5px;color:#8A8270;">{{ item.shop }}</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:13px;font-weight:700;color:#2A3B66;">₹{{ item.price }}<span style="font-size:10px;font-weight:500;color:#8A8270;">{{ item.unit }}</span></span>
+              <span style="font-size:10.5px;color:#A5732A;font-weight:600;">★ {{ item.rating }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <footer style="margin:4px 0 0;background:#F3EAD6;border-top:1px solid #E4DBC8;padding:20px 16px 16px;">
+      <div style="font-family:'Instrument Serif',serif;font-size:19px;color:#2A3B66;">ARLI</div>
+      <p style="font-size:11px;color:#8A8270;line-height:1.55;margin:5px 0 14px;text-wrap:pretty;">{{ t.footerAbout }}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:14px;">
+        <sc-for list="{{ footLegalLinks }}" as="fl" hint-placeholder-count="5">
+          <button onClick="{{ fl.go }}" style="background:none;border:none;padding:0;font-size:11.5px;color:#5C5546;cursor:pointer;text-decoration:underline;font-family:inherit;min-height:28px;">{{ fl.label }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <span style="font-size:10.5px;color:#8A8270;">© 2026 ARLI · {{ t.grievanceShort }}</span>
+        <a href="ARLI Business.dc.html" style="font-size:10.5px;color:#8A8270;text-decoration:underline;">{{ t.bizBtn }} ↗</a>
+      </div>
+    </footer>
+  </div>
+</sc-if>
+
+<!-- ===== LEGAL PAGES ===== -->
+<sc-if value="{{ isLegal }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <button onClick="{{ goHome }}" style="background:none;border:none;color:#8A8270;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;margin-bottom:10px;">← {{ t.tabHome }}</button>
+    <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;" class="hscroll">
+      <sc-for list="{{ legalTabs }}" as="lt" hint-placeholder-count="5">
+        <button onClick="{{ lt.select }}" style="flex:none;background: {{ lt.bg }};color: {{ lt.fg }};border:1px solid {{ lt.border }};font-size:11.5px;font-weight:600;cursor:pointer;padding:8px 13px;border-radius:999px;min-height:34px;">{{ lt.label }}</button>
+      </sc-for>
+    </div>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0 0 4px;">{{ legalTitle }}</h1>
+    <p style="font-size:10.5px;color:#8A8270;margin:0 0 14px;">{{ t.lastUpdated }}: 1 July 2026</p>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ legalBody }}" as="lp" hint-placeholder-count="4">
+        <div>
+          <h3 style="font-size:13px;font-weight:700;margin:0 0 4px;">{{ lp.h }}</h3>
+          <p style="font-size:12px;line-height:1.6;color:#5C5546;margin:0;text-wrap:pretty;white-space:pre-line;">{{ lp.p }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== EXPLORE ===== -->
+<sc-if value="{{ isExplore }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding-bottom:16px;">
+    <div style="padding:14px 16px 0;">
+      <div style="display:flex;gap:6px;background:#fff;border:1.5px solid #D8CDB4;border-radius:12px;padding:3px 3px 3px 13px;align-items:center;">
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="{{ t.searchPh }}" style="flex:1;border:none;outline:none;font-size:14px;background:transparent;min-width:0;">
+        <button onClick="{{ doSearch }}" style="background:#2A3B66;color:#fff;border:none;font-size:12.5px;font-weight:700;cursor:pointer;padding:9px 14px;border-radius:9px;min-height:38px;">{{ t.searchBtn }}</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;overflow-x:auto;padding:12px 16px 4px;" class="hscroll">
+      <input value="{{ pincode }}" onChange="{{ onPincode }}" placeholder="{{ t.pincodePh }}" style="flex:none;width:96px;border:1px solid #D8CDB4;border-radius:999px;padding:8px 13px;font-size:12.5px;background:#fff;outline:none;">
+      <select value="{{ priceMax }}" onChange="{{ onPriceMax }}" style="flex:none;border:1px solid #D8CDB4;border-radius:999px;padding:8px 10px;font-size:12.5px;background:#fff;outline:none;">
+        <option value="0">{{ t.anyPrice }}</option>
+        <option value="500">{{ t.under }} ₹500</option>
+        <option value="1000">{{ t.under }} ₹1000</option>
+        <option value="2000">{{ t.under }} ₹2000</option>
+      </select>
+      <sc-for list="{{ catChips }}" as="c" hint-placeholder-count="4">
+        <button onClick="{{ c.select }}" style="flex:none;background: {{ c.bg }};color: {{ c.fg }};border:1px solid {{ c.border }};font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:999px;min-height:36px;">{{ c.label }}</button>
+      </sc-for>
+    </div>
+    <p style="font-size:11.5px;color:#8A8270;margin:10px 16px;">{{ resultCount }} {{ t.resultsFound }}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px;">
+      <sc-for list="{{ results }}" as="item" hint-placeholder-count="6">
+        <div onClick="{{ item.open }}" style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;overflow:hidden;cursor:pointer;">
+          <div style="height:104px;background: {{ item.swatch }};position:relative;">
+            <sc-if value="{{ item.sponsored }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:8px;left:8px;background:#E9A23B;color:#22201C;font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;">{{ t.sponsored }}</span>
+            </sc-if>
+          </div>
+          <div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:12.5px;font-weight:600;line-height:1.3;">{{ item.name }}</span>
+            <span style="font-size:10.5px;color:#8A8270;">{{ item.shop }} · {{ item.pincode }}</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:13px;font-weight:700;color:#2A3B66;">₹{{ item.price }}<span style="font-size:10px;font-weight:500;color:#8A8270;">{{ item.unit }}</span></span>
+              <span style="font-size:10.5px;color:#A5732A;font-weight:600;">★ {{ item.rating }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:48px 24px;color:#8A8270;font-size:13.5px;">{{ t.noResults }}</div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ===== LISTING ===== -->
+<sc-if value="{{ isListing }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;">
+    <div style="height:250px;background: {{ sel.swatch }};position:relative;">
+      <button onClick="{{ goExplore }}" style="position:absolute;top:12px;left:12px;background:rgba(250,245,236,.92);border:none;border-radius:999px;width:38px;height:38px;font-size:16px;cursor:pointer;color:#22201C;">←</button>
+      <sc-if value="{{ sel.sponsored }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;top:20px;right:14px;background:#E9A23B;color:#22201C;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;">{{ t.sponsored }}</span>
+      </sc-if>
+    </div>
+    <div style="padding:16px 16px 8px;">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin:0 0 4px;line-height:1.15;">{{ sel.name }}</h1>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:10px;flex-wrap:wrap;">
+        <span style="color:#A5732A;font-weight:700;">★ {{ sel.rating }}</span>
+        <span style="color:#8A8270;">({{ sel.reviews }} {{ t.reviewsWord }})</span>
+        <button onClick="{{ openShopFromListing }}" style="background:none;border:none;color:#2A3B66;font-size:12px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;">{{ sel.shop }}</button>
+        <span style="color:#8A8270;">· {{ sel.pincode }}</span>
+        <b style="color:#2A3B66;cursor:pointer;font-size:12px;" onClick="{{ openShopFromListing }}">{{ t.viewShop }} →</b>
+      </div>
+      <p style="font-size:13px;line-height:1.55;color:#5C5546;margin:0 0 12px;text-wrap:pretty;">{{ sel.desc }}</p>
+      <div style="font-size:24px;font-weight:700;color:#2A3B66;margin-bottom:14px;">₹{{ sel.price }}<span style="font-size:12px;font-weight:500;color:#8A8270;">{{ sel.unit }}</span></div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <span style="font-size:12.5px;font-weight:600;">{{ qtyLabel }}</span>
+        <div style="display:flex;align-items:center;border:1.5px solid #D8CDB4;border-radius:10px;overflow:hidden;background:#fff;">
+          <button onClick="{{ qtyMinus }}" style="width:44px;height:44px;border:none;background:none;font-size:18px;cursor:pointer;color:#2A3B66;">−</button>
+          <span style="width:40px;text-align:center;font-size:15px;font-weight:700;">{{ qty }}</span>
+          <button onClick="{{ qtyPlus }}" style="width:44px;height:44px;border:none;background:none;font-size:18px;cursor:pointer;color:#2A3B66;">+</button>
+        </div>
+        <span style="font-size:12px;color:#8A8270;">= <b style="color:#22201C;">₹{{ lineTotal }}</b></span>
+      </div>
+
+      <sc-if value="{{ sel.measurable }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1.5px solid #E4DBC8;border-radius:14px;padding:14px;margin-bottom:14px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;min-height:28px;">
+            <input type="checkbox" checked="{{ attachMeas }}" onChange="{{ toggleMeas }}" style="width:20px;height:20px;accent-color:#2A3B66;cursor:pointer;">
+            <span style="font-size:13.5px;font-weight:700;">📏 {{ t.attachMeas }}</span>
+          </label>
+          <sc-if value="{{ attachMeas }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+              <sc-for list="{{ measFields }}" as="mf" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <span style="font-size:9.5px;color:#8A8270;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">{{ mf.label }}</span>
+                  <input value="{{ mf.value }}" onChange="{{ mf.onChange }}" style="width:100%;border:1px solid #D8CDB4;border-radius:8px;padding:8px;font-size:13px;outline:none;">
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{ sel.measurable }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1.5px dashed #C9BC9C;border-radius:14px;padding:14px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;">📎 {{ t.uploadDesign }}</div>
+              <div style="font-size:11px;color:#8A8270;margin-top:2px;">{{ t.uploadDesignSub }}</div>
+            </div>
+            <label style="flex:none;background:#2A3B66;color:#FAF5EC;font-size:11.5px;font-weight:700;cursor:pointer;padding:10px 13px;border-radius:9px;min-height:38px;display:flex;align-items:center;">
+              <input type="file" accept="image/*" onChange="{{ onDesignFile }}" style="display:none;">{{ t.chooseFile }}
+            </label>
+          </div>
+          <sc-if value="{{ hasDesignImg }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+              {{ designThumb }}
+              <span style="font-size:12px;font-weight:600;color:#2E7D5B;">✓ {{ t.designAttached }}</span>
+              <button onClick="{{ removeDesign }}" style="background:none;border:none;color:#C2492F;font-size:11.5px;font-weight:600;cursor:pointer;padding:6px;">{{ t.removeFile }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+      <p style="font-size:11px;color:#8A8270;margin:0 0 8px;">🏪 {{ t.payAtShop }}</p>
+    </div>
+
+    <div style="padding:4px 16px 20px;">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;margin:0 0 10px;">{{ t.reviewsTitle }}</h2>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-for list="{{ sampleReviews }}" as="rv" hint-placeholder-count="2">
+          <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+              <span style="font-size:12px;font-weight:700;">{{ rv.who }}</span>
+              <span style="font-size:11px;color:#A5732A;font-weight:700;">{{ rv.stars }}</span>
+            </div>
+            <p style="font-size:12px;line-height:1.5;color:#5C5546;margin:0;">{{ rv.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="position:sticky;bottom:0;background:#FAF5EC;border-top:1px solid #E4DBC8;padding:10px 16px;display:flex;gap:10px;z-index:30;">
+      <button onClick="{{ openChat }}" style="flex:1;background:#fff;color:#2A3B66;border:1.5px solid #2A3B66;font-size:13.5px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">💬 {{ t.chatShort }}</button>
+      <button onClick="{{ addToCart }}" style="flex:1.4;background:#C2492F;color:#fff;border:none;font-size:13.5px;font-weight:700;cursor:pointer;padding:13px;border-radius:12px;min-height:48px;">{{ t.addToCart }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== CART ===== -->
+<sc-if value="{{ isCart }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;">
+    <h1 style="font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin:0 0 14px;">{{ t.cartTitle }}</h1>
+    <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <sc-for list="{{ cartRows }}" as="ci" hint-placeholder-count="2">
+          <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;">
+            <div style="width:54px;height:54px;border-radius:10px;background: {{ ci.swatch }};flex:none;"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">
+              <span style="font-size:13px;font-weight:700;line-height:1.3;">{{ ci.name }}</span>
+              <span style="font-size:11px;color:#8A8270;">₹{{ ci.price }}{{ ci.unit }} × {{ ci.qty }}</span>
+              <sc-if value="{{ ci.hasMeas }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:10.5px;color:#2A3B66;font-weight:600;">📏 {{ t.measAttached }}</span>
+              </sc-if>
+              <sc-if value="{{ ci.hasDesign }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:10.5px;color:#A5732A;font-weight:600;">📎 {{ t.designAttached }}</span>
+              </sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+              <span style="font-size:14px;font-weight:700;color:#2A3B66;">₹{{ ci.total }}</span>
+              <button onClick="{{ ci.remove }}" style="background:none;border:none;color:#C2492F;font-size:11px;font-weight:600;cursor:pointer;padding:6px 0;">{{ t.remove }}</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:14px;">
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input value="{{ promo }}" onChange="{{ onPromo }}" placeholder="{{ t.promoPh }}" style="flex:1;min-width:0;border:1.5px solid #D8CDB4;border-radius:10px;padding:10px 12px;font-size:13px;outline:none;text-transform:uppercase;">
+          <button onClick="{{ applyPromo }}" style="background:#22201C;color:#FAF5EC;border:none;font-size:12px;font-weight:700;cursor:pointer;padding:0 16px;border-radius:10px;min-height:42px;">{{ t.apply }}</button>
+        </div>
+        <sc-if value="{{ promoMsgShow }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:12px;font-weight:600;color: {{ promoColor }};margin:-4px 0 10px;">{{ promoMsg }}</p>
+        </sc-if>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#5C5546;padding:4px 0;"><span>{{ t.subtotal }}</span><span>₹{{ cartSubtotal }}</span></div>
+        <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:#2E7D5B;font-weight:600;padding:4px 0;"><span>{{ t.discount }}</span><span>−₹{{ discountAmt }}</span></div>
+        </sc-if>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;padding:10px 0 2px;border-top:1px solid #E4DBC8;margin-top:6px;"><span>{{ t.total }}</span><span style="color:#2A3B66;">₹{{ cartTotal }}</span></div>
+        <p style="font-size:11px;color:#A5732A;font-weight:600;margin:3px 0 12px;">★ {{ t.youllEarn }} {{ earnPoints }} {{ t.loyaltyPts }}</p>
+        <button onClick="{{ proceedCheckout }}" style="width:100%;background:#C2492F;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;min-height:48px;">{{ proceedLabel }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:56px 0;">
+        <p style="font-size:14px;color:#8A8270;margin:0 0 14px;">{{ t.cartEmpty }}</p>
+        <button onClick="{{ goExplore }}" style="background:#2A3B66;color:#FAF5EC;border:none;font-size:13px;font-weight:700;cursor:pointer;padding:12px 22px;border-radius:999px;min-height:44px;">{{ t.startShopping }}</button>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ===== LOGIN ===== -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:28px 16px;">
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:18px;padding:22px;">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:25px;font-weight:400;margin:0 0 4px;">{{ t.loginTitle }}</h1>
+      <p style="font-size:12.5px;color:#8A8270;margin:0 0 18px;">{{ t.loginSub }}</p>
+      <label style="font-size:11px;font-weight:700;color:#5C5546;text-transform:uppercase;letter-spacing:.5px;">{{ t.phoneLabel }}</label>
+      <div style="display:flex;gap:8px;margin:6px 0 14px;">
+        <span style="border:1.5px solid #D8CDB4;border-radius:10px;padding:12px 10px;font-size:13px;background:#F5EFE1;color:#5C5546;font-weight:600;">+91</span>
+        <input value="{{ phone }}" onChange="{{ onPhone }}" placeholder="98765 43210" style="flex:1;min-width:0;border:1.5px solid #D8CDB4;border-radius:10px;padding:12px;font-size:14px;outline:none;" style-focus="border-color:#2A3B66;">
+      </div>
+      <button onClick="{{ sendOtp }}" style="width:100%;background:#2A3B66;color:#FAF5EC;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;min-height:48px;">{{ t.sendOtp }}</button>
+      <div style="display:flex;align-items:center;gap:10px;margin:16px 0;">
+        <div style="flex:1;height:1px;background:#E4DBC8;"></div><span style="font-size:11px;color:#8A8270;">{{ t.or }}</span><div style="flex:1;height:1px;background:#E4DBC8;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button onClick="{{ googleLogin }}" style="width:100%;background:#fff;color:#22201C;border:1.5px solid #D8CDB4;font-size:13px;font-weight:600;cursor:pointer;padding:13px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;">
+          <span style="font-weight:800;color:#4285F4;">G</span> {{ t.googleBtn }}
+        </button>
+        <button onClick="{{ devfrogsLogin }}" style="width:100%;background:#fff;color:#22201C;border:1.5px solid #D8CDB4;font-size:13px;font-weight:600;cursor:pointer;padding:13px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;">
+          <span style="font-size:16px;">🐸</span> {{ t.devfrogsBtn }}
+        </button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== OTP ===== -->
+<sc-if value="{{ isOtp }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:28px 16px;">
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:18px;padding:22px;">
+      <h1 style="font-family:'Instrument Serif',serif;font-size:25px;font-weight:400;margin:0 0 4px;">{{ t.otpTitle }}</h1>
+      <p style="font-size:12.5px;color:#8A8270;margin:0 0 4px;">{{ t.otpSub }} <b style="color:#22201C;">+91 {{ phone }}</b></p>
+      <p style="font-size:11px;color:#A5732A;margin:0 0 16px;">{{ t.otpHint }}</p>
+      <input value="{{ otp }}" onChange="{{ onOtp }}" maxLength="4" placeholder="• • • •" style="width:100%;border:1.5px solid #D8CDB4;border-radius:12px;padding:14px;font-size:24px;letter-spacing:14px;text-align:center;outline:none;font-weight:700;" style-focus="border-color:#2A3B66;">
+      <button onClick="{{ verifyOtp }}" style="width:100%;background:#C2492F;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;margin-top:14px;min-height:48px;">{{ t.verify }}</button>
+      <button onClick="{{ goLogin }}" style="width:100%;background:none;border:none;color:#8A8270;font-size:12px;font-weight:600;cursor:pointer;padding:12px;margin-top:2px;">{{ t.changeNumber }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== CHECKOUT ===== -->
+<sc-if value="{{ isCheckout }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:16px;display:flex;flex-direction:column;gap:12px;">
+    <h1 style="font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin:0;">{{ t.checkoutTitle }}</h1>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:16px;">
+      <h3 style="font-size:13.5px;font-weight:700;margin:0 0 10px;">📍 {{ t.deliveryAddr }}</h3>
+      <input value="{{ addrName }}" onChange="{{ onAddrName }}" placeholder="{{ t.fullName }}" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:11px 12px;font-size:13px;outline:none;margin-bottom:8px;">
+      <textarea value="{{ addrText }}" onChange="{{ onAddrText }}" placeholder="{{ t.addressPh }}" rows="2" style="width:100%;border:1.5px solid #D8CDB4;border-radius:10px;padding:11px 12px;font-size:13px;outline:none;resize:none;margin-bottom:8px;"></textarea>
+      <input value="{{ addrPin }}" onChange="{{ onAddrPin }}" placeholder="{{ t.pincodePh }}" style="width:130px;border:1.5px solid #D8CDB4;border-radius:10px;padding:11px 12px;font-size:13px;outline:none;">
+    </div>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:16px;">
+      <h3 style="font-size:13.5px;font-weight:700;margin:0 0 10px;">💳 {{ t.payment }}</h3>
+      <label style="display:flex;align-items:center;gap:10px;border:1.5px solid #2A3B66;border-radius:12px;padding:12px;cursor:pointer;background:#EDF0F7;">
+        <input type="radio" checked="{{ true }}" readOnly="{{ true }}" style="accent-color:#2A3B66;">
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:13px;font-weight:700;">🏪 {{ t.payAtShopOpt }}</span>
+          <span style="font-size:11px;color:#8A8270;">{{ t.payAtShopSub }}</span>
+        </div>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;border:1.5px solid #E4DBC8;border-radius:12px;padding:12px;margin-top:8px;opacity:.55;">
+        <input type="radio" disabled="{{ true }}" style="accent-color:#2A3B66;">
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:13px;font-weight:700;">UPI / Razorpay</span>
+          <span style="font-size:11px;color:#8A8270;">{{ t.comingSoon }}</span>
+        </div>
+      </label>
+    </div>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:16px;">
+      <h3 style="font-size:13.5px;font-weight:700;margin:0 0 8px;">{{ t.orderSummary }}</h3>
+      <sc-for list="{{ cartRows }}" as="ci" hint-placeholder-count="2">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#5C5546;padding:3px 0;">
+          <span>{{ ci.name }} × {{ ci.qty }}</span><span>₹{{ ci.total }}</span>
+        </div>
+      </sc-for>
+      <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:10px 0 2px;border-top:1px solid #E4DBC8;margin-top:8px;"><span>{{ t.total }}</span><span style="color:#2A3B66;">₹{{ cartTotal }}</span></div>
+      <button onClick="{{ placeOrder }}" style="width:100%;background:#C2492F;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:14px;border-radius:12px;margin-top:12px;min-height:48px;">{{ t.placeOrder }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== SUCCESS ===== -->
+<sc-if value="{{ isSuccess }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;padding:36px 16px;text-align:center;">
+    <div style="width:60px;height:60px;border-radius:50%;background:#2E7D5B;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">✓</div>
+    <h1 style="font-family:'Instrument Serif',serif;font-size:27px;font-weight:400;margin:0 0 6px;">{{ t.orderPlaced }}</h1>
+    <p style="font-size:12.5px;color:#8A8270;margin:0 0 4px;">{{ t.orderId }}: <b style="color:#22201C;">{{ orderId }}</b></p>
+    <p style="font-size:12.5px;color:#A5732A;font-weight:700;margin:0 0 20px;">★ +{{ lastEarned }} {{ t.loyaltyPts }}</p>
+    <div style="background:#fff;border:1px solid #E4DBC8;border-radius:14px;padding:16px;text-align:left;margin-bottom:18px;">
+      <h3 style="font-size:12.5px;font-weight:700;margin:0 0 12px;">{{ t.statusTitle }}</h3>
+      <div style="display:flex;">
+        <sc-for list="{{ statusSteps }}" as="ss" hint-placeholder-count="5">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:24px;height:24px;border-radius:50%;background: {{ ss.bg }};color: {{ ss.fg }};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid {{ ss.border }};">{{ ss.mark }}</div>
+            <span style="font-size:9px;font-weight:600;color: {{ ss.labelColor }};text-align:center;">{{ ss.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onClick="{{ openChatNav }}" style="background:#fff;color:#2A3B66;border:1.5px solid #2A3B66;font-size:12.5px;font-weight:700;cursor:pointer;padding:12px 16px;border-radius:12px;min-height:44px;">💬 {{ t.chatShort }}</button>
+      <button onClick="{{ goExplore }}" style="background:#2A3B66;color:#FAF5EC;border:none;font-size:12.5px;font-weight:700;cursor:pointer;padding:12px 16px;border-radius:12px;min-height:44px;">{{ t.continueShopping }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== CHAT ===== -->
+<sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:480px;">
+    <div style="background:#2A3B66;color:#FAF5EC;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#E9A23B;color:#22201C;display:flex;align-items:center;justify-content:center;font-size:16px;">✂️</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13.5px;font-weight:700;">{{ chatShopName }}</div>
+        <div style="font-size:10.5px;opacity:.75;">● {{ t.online }} · {{ t.repliesFast }}</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#F3EAD6;">
+      <sc-for list="{{ chatMsgs }}" as="m" hint-placeholder-count="2">
+        <div style="align-self: {{ m.align }};max-width:82%;background: {{ m.bg }};color: {{ m.fg }};padding:9px 13px;border-radius:13px;font-size:13px;line-height:1.45;white-space:pre-line;">{{ m.text }}</div>
+      </sc-for>
+      <sc-if value="{{ shopTyping }}" hint-placeholder-val="{{ false }}">
+        <div style="align-self:flex-start;background:#fff;border:1px solid #E4DBC8;padding:9px 14px;border-radius:13px;font-size:13px;color:#8A8270;">{{ t.typing }}…</div>
+      </sc-if>
+    </div>
+    <div style="border-top:1px solid #E4DBC8;padding:8px 12px;background:#fff;">
+      <div style="display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;" class="hscroll">
+        <button onClick="{{ shareMeas }}" style="flex:none;background:#EDF0F7;color:#2A3B66;border:1px solid #C6CFE3;font-size:11.5px;font-weight:600;cursor:pointer;padding:7px 12px;border-radius:999px;min-height:32px;">📏 {{ t.shareMeas }}</button>
+        <button onClick="{{ askPrice }}" style="flex:none;background:#F5EFE1;color:#5C5546;border:1px solid #E4DBC8;font-size:11.5px;font-weight:600;cursor:pointer;padding:7px 12px;border-radius:999px;min-height:32px;">{{ t.askPrice }}</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input value="{{ chatInput }}" onChange="{{ onChatInput }}" onKeyDown="{{ onChatKey }}" placeholder="{{ t.chatPh }}" style="flex:1;min-width:0;border:1.5px solid #D8CDB4;border-radius:999px;padding:11px 16px;font-size:13px;outline:none;" style-focus="border-color:#2A3B66;">
+        <button onClick="{{ sendChat }}" style="background:#C2492F;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;width:44px;height:44px;border-radius:50%;">➤</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== SHOP PROFILE ===== -->
+<sc-if value="{{ isShopProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:fadeUp .35s ease both;">
+    <div style="height:110px;background: {{ shopBanner }};position:relative;">
+      <button onClick="{{ backFromShop }}" style="position:absolute;top:10px;left:12px;background:rgba(250,245,236,.92);border:none;border-radius:999px;width:36px;height:36px;font-size:15px;cursor:pointer;color:#22201C;">←</button>
+    </div>
+    <div style="padding:0 16px 16px;">
+      <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:10px;">
+        <div style="width:66px;height:66px;border-radius:16px;background:#2A3B66;color:#FAF5EC;font-size:28px;display:flex;align-items:center;justify-content:center;margin-top:-26px;border:3px solid #FAF5EC;flex:none;">{{ shopIcon }}</div>
+        <button onClick="{{ chatWithProfShop }}" style="margin-left:auto;background:#2A3B66;color:#FAF5EC;border:none;font-size:12.5px;font-weight:700;cursor:pointer;padding:11px 16px;border-radius:11px;min-height:42px;">💬 {{ t.chatShort }}</button>
+      </div>
+      <h1 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin:0;line-height:1.1;">{{ shopProfName }}</h1>
+      <div style="font-size:11.5px;color:#8A8270;margin-top:3px;">
+        <span style="color:#A5732A;font-weight:700;">★ {{ shopProfRating }}</span> ({{ shopProfReviews }} {{ t.reviewsWord }}) · {{ shopProfType }} · {{ shopProfPin }}
+      </div>
+      <p style="font-size:12.5px;color:#5C5546;margin:8px 0 0;line-height:1.5;text-wrap:pretty;">{{ shopProfDesc }}</p>
+    </div>
+
+    <div style="padding:4px 16px 6px;">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;margin:0;">{{ t.designsTitle }}</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 16px 18px;">
+      <sc-for list="{{ shopDesigns }}" as="dg" hint-placeholder-count="6">
+        <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;overflow:hidden;">
+          <div style="height:96px;background: {{ dg.swatch }};"></div>
+          <div style="padding:8px 10px;font-size:12px;font-weight:700;">{{ dg.name }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="padding:0 16px 6px;">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;margin:0;">{{ t.shopListingsTitle }}</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 16px 18px;">
+      <sc-for list="{{ shopListings }}" as="item" hint-placeholder-count="2">
+        <div onClick="{{ item.open }}" style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;overflow:hidden;cursor:pointer;">
+          <div style="height:88px;background: {{ item.swatch }};"></div>
+          <div style="padding:8px 10px;display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:12px;font-weight:600;line-height:1.3;">{{ item.name }}</span>
+            <span style="font-size:12.5px;font-weight:700;color:#2A3B66;">₹{{ item.price }}<span style="font-size:10px;font-weight:500;color:#8A8270;">{{ item.unit }}</span></span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="padding:0 16px 20px;">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:19px;font-weight:400;margin:0 0 10px;">{{ t.reviewsTitle }}</h2>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <sc-for list="{{ sampleReviews }}" as="rv" hint-placeholder-count="2">
+          <div style="background:#fff;border:1px solid #E4DBC8;border-radius:12px;padding:12px 14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+              <span style="font-size:12px;font-weight:700;">{{ rv.who }}</span>
+              <span style="font-size:11px;color:#A5732A;font-weight:700;">{{ rv.stars }}</span>
+            </div>
+            <p style="font-size:12px;line-height:1.5;color:#5C5546;margin:0;">{{ rv.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</main>
+
+<!-- toast -->
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:sticky;bottom:76px;left:50%;transform:translateX(-50%);width:fit-content;background:#22201C;color:#FAF5EC;font-size:12.5px;font-weight:600;padding:11px 20px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);animation:toastIn .3s ease both;z-index:60;">{{ toastMsg }}</div>
+</sc-if>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav style="position:sticky;bottom:0;z-index:50;background:#fff;border-top:1px solid #E4DBC8;display:flex;padding:6px 8px 8px;">
+  <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="5">
+    <button onClick="{{ tb.go }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:52px;position:relative;">
+      <span style="font-size:19px;filter: {{ tb.iconFilter }};">{{ tb.icon }}</span>
+      <span style="font-size:10px;font-weight:700;color: {{ tb.color }};">{{ tb.label }}</span>
+      <sc-if value="{{ tb.showBadge }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;top:2px;right:calc(50% - 20px);background:#C2492F;color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">{{ tb.badge }}</span>
+      </sc-if>
+    </button>
+  </sc-for>
+</nav>
+
+</div>
+</x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 480, &quot;height&quot;: 960}, &quot;banner1Src&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Hero banners (image/video URL, blank = pattern)&quot;}, &quot;banner2Src&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Hero banners (image/video URL, blank = pattern)&quot;}, &quot;banner3Src&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Hero banners (image/video URL, blank = pattern)&quot;}, &quot;bannerAutoplaySecs&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 5, &quot;min&quot;: 2, &quot;max&quot;: 15, &quot;unit&quot;: &quot;s&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Hero banners (image/video URL, blank = pattern)&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'home', lang: 'en',
+    query: '', pincode: '', priceMax: '0', cat: 'all',
+    selId: null, qty: 1, attachMeas: false,
+    meas: { chest: '38', waist: '32', hip: '40', shoulder: '17', sleeve: '24', length: '42' },
+    cart: [], promo: '', promoApplied: false, promoMsg: '', promoOk: false,
+    loggedIn: false, phone: '', otp: '', afterLogin: null,
+    addrName: '', addrText: '', addrPin: '',
+    points: 0, lastEarned: 0, orderId: '',
+    chatShop: null, chatMsgs: [], chatInput: '', shopTyping: false,
+    toastMsg: '', toastShow: false, banner: 0, legalPage: 'terms',
+    isBusiness: false, bizStep: 1, bizType: null, shopName: '', shopDesc: '', shopPin: '',
+    bizTab: 'orders', newLName: '', newLPrice: '', adBudget: 200, adActive: false,
+    bizOrders: [
+      { id: 'ARL-2412', cust: { en: 'Priya S.', hi: 'प्रिया S.' }, item: { en: 'Custom Kurta Stitching', hi: 'कस्टम कुर्ता सिलाई' }, qty: 1, amt: 1200, meas: true, status: 0 },
+      { id: 'ARL-2398', cust: { en: 'Rahul M.', hi: 'राहुल M.' }, item: { en: 'Blouse Stitching (lined)', hi: 'ब्लाउज़ सिलाई' }, qty: 2, amt: 1600, meas: true, status: 2 },
+      { id: 'ARL-2371', cust: { en: 'Fatima K.', hi: 'फ़ातिमा K.' }, item: { en: 'Chanderi Cotton — 3m', hi: 'चंदेरी कॉटन — 3मी' }, qty: 3, amt: 1260, meas: false, status: 4 },
+    ],
+    bizListings: [
+      { name: { en: 'Custom Kurta Stitching', hi: 'कस्टम कुर्ता सिलाई' }, price: 1200, stock: '—', views: 412, base: '#39597B', acc: '#48688A' },
+      { name: { en: 'Blouse Stitching (lined)', hi: 'ब्लाउज़ सिलाई (लाइनिंग)' }, price: 800, stock: '—', views: 296, base: '#8A5A3B', acc: '#9A6A4B' },
+      { name: { en: 'Chanderi Cotton (per meter)', hi: 'चंदेरी कॉटन (प्रति मीटर)' }, price: 420, stock: '42 m', views: 188, base: '#C9A96A', acc: '#D8BC82' },
+    ],
+    bizChats: [
+      { cust: { en: 'Priya S.', hi: 'प्रिया S.' }, last: { en: 'Can you deliver by Friday?', hi: 'क्या शुक्रवार तक मिल जाएगा?' }, unread: true },
+      { cust: { en: 'Amit V.', hi: 'अमित V.' }, last: { en: 'Shared measurements 📏', hi: 'नाप भेजा 📏' }, unread: false },
+    ],
+    shopSel: null, designImg: null, invoiceOrder: null, invoiceType: 'invoice', newDesignName: '',
+    bizDesigns: [
+      { name: { en: 'Anarkali suit', hi: 'अनारकली सूट' }, base: '#7A2E4D', acc: '#935071' },
+      { name: { en: 'Sherwani', hi: 'शेरवानी' }, base: '#2A3B66', acc: '#3A4E82' },
+      { name: { en: 'Lehenga', hi: 'लहंगा' }, base: '#B0473A', acc: '#C0574A' },
+      { name: { en: 'A-line kurta', hi: 'ए-लाइन कुर्ता' }, base: '#4E6B4B', acc: '#5E7C5A' },
+      { name: { en: 'Saree blouse', hi: 'साड़ी ब्लाउज़' }, base: '#8A5A3B', acc: '#9A6A4B' },
+      { name: { en: 'Palazzo set', hi: 'पलाज़ो सेट' }, base: '#31434F', acc: '#40525E' },
+    ],
+    designRequests: [
+      { cust: { en: 'Priya S.', hi: 'प्रिया S.' }, note: { en: 'Kurta like the attached photo, chest 38"', hi: 'भेजी गई फोटो जैसा कुर्ता, छाती 38"' }, accepted: false, base: '#9D9077' },
+      { cust: { en: 'Amit V.', hi: 'अमित V.' }, note: { en: 'Boat-neck blouse design, silk lining', hi: 'बोट-नेक ब्लाउज़ डिज़ाइन, सिल्क लाइनिंग' }, accepted: false, base: '#C9A96A' },
+    ],
+  };
+
+  componentDidMount() {
+    const secs = Math.max(2, Number(this.props.bannerAutoplaySecs) || 5);
+    this._bt = setInterval(() => {
+      if (this.state.screen === 'home') this.setState(p => ({ banner: (p.banner + 1) % this.BANNERS.length }));
+    }, secs * 1000);
+  }
+
+  componentWillUnmount() { clearInterval(this._bt); clearTimeout(this._tt); }
+
+  BANNERS = [
+    { tag: { en: 'Festive Edit', hi: 'त्योहार विशेष' },
+      title: { en: 'Banarasi silks, straight from the loom', hi: 'बनारसी सिल्क, सीधे करघे से' },
+      cta: { en: 'Shop silks', hi: 'सिल्क देखें' }, cat: 'fabric', base: '#7A2E4D', acc: '#8F3F5E' },
+    { tag: { en: 'Made to Measure', hi: 'नाप के अनुसार' },
+      title: { en: 'A perfect fit, without the notebook', hi: 'परफेक्ट फिटिंग, बिना कॉपी-पेन के' },
+      cta: { en: 'Find a tailor', hi: 'दर्ज़ी खोजें' }, cat: 'service', base: '#39597B', acc: '#48688A' },
+    { tag: { en: 'Offer', hi: 'ऑफ़र' },
+      title: { en: 'Flat 10% off your first order', hi: 'पहले ऑर्डर पर 10% छूट' },
+      cta: { en: 'Explore deals', hi: 'डील देखें' }, cat: 'all', base: '#B0473A', acc: '#C0574A' },
+  ];
+
+  bannerMediaEl(idx) {
+    const src = [this.props.banner1Src, this.props.banner2Src, this.props.banner3Src][idx];
+    const cover = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' };
+    if (src && /\.(mp4|webm|mov)(\?|$)/i.test(src)) {
+      return React.createElement('video', { key: 'v' + idx, src, autoPlay: true, muted: true, loop: true, playsInline: true, style: cover });
+    }
+    if (src) return React.createElement('img', { key: 'i' + idx, src, style: cover });
+    const b = this.BANNERS[idx];
+    return React.createElement('div', { key: 'g' + idx, style: { position: 'absolute', inset: 0, background: this.weave(b.base, b.acc) } });
+  }
+
+  T = {
+    en: {
+      tagline: 'Local Fashion', heroTitle1: 'Your neighbourhood', heroTitle2: 'fashion bazaar.',
+      heroSubShort: 'Tailors, fabrics, boutiques near you — chat in your language, order with your measurements.',
+      searchPh: 'Search silk, kurta, tailor…', searchBtn: 'Go',
+      offersLabel: 'Offers', offer1: 'ARLI10 — 10% off first order', offer2: '1 point per ₹100',
+      featuredTitle: 'Featured near you', viewAll: 'View all',
+      bizTitle: 'Own a shop?', bizSubShort: 'List your fabrics, garments or tailoring in minutes. Orders, chat, ads and analytics.',
+      bizBtn: 'Register your business',
+      pincodePh: 'Pincode', anyPrice: 'Any price', under: 'Under',
+      resultsFound: 'results near you', noResults: 'No listings match — try clearing filters.',
+      sponsored: 'Sponsored', reviewsWord: 'reviews',
+      qtyMeters: 'Meters', qtyPieces: 'Qty', subtotal: 'Subtotal',
+      attachMeas: 'Attach my measurements',
+      addToCart: 'Add to cart', chatShort: 'Chat', payAtShop: 'Pay at shop on delivery · Razorpay coming soon',
+      reviewsTitle: 'Reviews',
+      cartTitle: 'Your cart', measAttached: 'Measurements attached', remove: 'Remove',
+      promoPh: 'Promo (try ARLI10)', apply: 'Apply', discount: 'Discount', total: 'Total',
+      youllEarn: 'You\u2019ll earn', loyaltyPts: 'loyalty points',
+      cartEmpty: 'Your cart is empty.', startShopping: 'Start shopping',
+      loginProceed: 'Login to continue', checkoutProceed: 'Proceed to checkout',
+      loginTitle: 'Welcome back', loginSub: 'Login or sign up with your phone number.',
+      phoneLabel: 'Phone number', sendOtp: 'Send OTP', or: 'or', googleBtn: 'Continue with Google', devfrogsBtn: 'Continue with Devfrogs',
+      otpTitle: 'Enter OTP', otpSub: 'Code sent to', otpHint: 'Demo: any 4 digits work',
+      verify: 'Verify & continue', changeNumber: 'Change number',
+      checkoutTitle: 'Checkout', deliveryAddr: 'Delivery address', fullName: 'Full name',
+      addressPh: 'House, street, area…', payment: 'Payment', payAtShopOpt: 'Pay at shop',
+      payAtShopSub: 'Cash or UPI on delivery', comingSoon: 'Coming soon',
+      orderSummary: 'Order summary', placeOrder: 'Place order',
+      orderPlaced: 'Order placed!', orderId: 'Order ID', statusTitle: 'Order status',
+      stPlaced: 'Placed', stAccepted: 'Accepted', stProgress: 'In progress', stReady: 'Ready', stDelivered: 'Delivered',
+      continueShopping: 'Keep shopping',
+      online: 'Online', repliesFast: 'replies in minutes', typing: 'typing',
+      shareMeas: 'Share measurements', askPrice: 'Ask best price', chatPh: 'Type a message…',
+      toastAdded: 'Added to cart', toastMeasShared: 'Measurements shared',
+      catAll: 'All', catFabric: 'Fabrics', catGarment: 'Garments', catService: 'Tailoring',
+      tabHome: 'Home', tabExplore: 'Explore', tabChat: 'Chat', tabCart: 'Cart',
+      footerAbout: 'A local fashion marketplace connecting tailors, fabric wholesalers, boutiques and designers with customers nearby.',
+      lastUpdated: 'Last updated', grievanceShort: 'Grievance officer: grievance@arli.in',
+      legalTerms: 'Terms of Service', legalPrivacy: 'Privacy Policy', legalReturns: 'Returns & Cancellations', legalGrievance: 'Grievance Redressal', legalShipping: 'Shipping & Delivery', tabShop: 'My shop',
+      onbQ1: 'What kind of business are you?', onbQ2: 'Tell us about your shop',
+      shopNameLabel: 'Shop name', shopNamePh: 'e.g. Meera Tailors', shopDescPh: 'What do you sell or stitch?',
+      continueBtn: 'Continue', backBtn: 'Back', launchBtn: 'Launch my shop',
+      onbDone: 'Your shop is live!', onbDoneSub: 'Customers nearby can now find you on ARLI.', goDash: 'Open dashboard',
+      viewAsCustomer: 'View as customer',
+      dashOrders: 'Orders', dashListings: 'Listings', dashChats: 'Chats', dashAds: 'Ads', dashStats: 'Analytics',
+      addListing: 'Add', listingNamePh: 'Listing name', priceLabel: 'Price (₹)', inStock: 'in stock', viewsWord: 'views',
+      adsTitle: 'Promote your listings', adsSub: 'Set a daily budget and your listings appear at the top of search, marked Sponsored.',
+      dailyBudget: 'Daily budget', startAd: 'Start ad', stopAd: 'Stop ad', adRunning: 'Ad running', estReach: 'est. daily views',
+      statViews: 'Listing views', statOrders: 'Total orders', statRevenue: 'Revenue', statChats: 'Chats started',
+      last30: 'Last 30 days', viewsPerListing: 'Views per listing',
+      replyBtn: 'Reply', unreadWord: 'new',
+      viewShop: 'View shop', designsTitle: 'Design portfolio', shopListingsTitle: 'Listings',
+      uploadDesign: 'Attach a design reference', uploadDesignSub: 'Photo of the style you want stitched',
+      chooseFile: 'Upload', removeFile: 'Remove', designAttached: 'Design attached',
+      invoiceBtn: 'Invoice', slipBtn: 'Delivery slip', invoiceTitle: 'TAX INVOICE', slipTitle: 'DELIVERY SLIP',
+      billedTo: 'Billed to', deliverTo: 'Deliver to', itemWord: 'Item', amountWord: 'Amount',
+      downloadBtn: 'Download PDF', closeBtn: 'Close', signature: 'Receiver signature',
+      dashDesigns: 'Designs', custRequests: 'Customer design requests', acceptBtn: 'Accept', acceptedMark: 'Accepted',
+      addDesign: 'Add', designNamePh: 'Design name',
+      docDownloaded: 'Downloaded (demo)',
+    },
+    hi: {
+      tagline: 'लोकल फ़ैशन', heroTitle1: 'आपके मोहल्ले का', heroTitle2: 'फ़ैशन बाज़ार।',
+      heroSubShort: 'पास के दर्ज़ी, कपड़े, बुटीक — अपनी भाषा में चैट करें, नाप के साथ ऑर्डर करें।',
+      searchPh: 'सिल्क, कुर्ता, दर्ज़ी खोजें…', searchBtn: 'खोजें',
+      offersLabel: 'ऑफ़र', offer1: 'ARLI10 — पहले ऑर्डर पर 10% छूट', offer2: 'हर ₹100 पर 1 पॉइंट',
+      featuredTitle: 'आपके पास के चुनिंदा', viewAll: 'सभी देखें',
+      bizTitle: 'दुकान है?', bizSubShort: 'मिनटों में कपड़े, गारमेंट या सिलाई लिस्ट करें। ऑर्डर, चैट, विज्ञापन और एनालिटिक्स।',
+      bizBtn: 'व्यवसाय रजिस्टर करें',
+      pincodePh: 'पिनकोड', anyPrice: 'कोई भी क़ीमत', under: 'तक',
+      resultsFound: 'नतीजे आपके पास', noResults: 'कोई लिस्टिंग नहीं मिली — फ़िल्टर हटाएँ।',
+      sponsored: 'प्रायोजित', reviewsWord: 'समीक्षाएँ',
+      qtyMeters: 'मीटर', qtyPieces: 'मात्रा', subtotal: 'उप-योग',
+      attachMeas: 'मेरा नाप जोड़ें',
+      addToCart: 'कार्ट में डालें', chatShort: 'चैट', payAtShop: 'डिलीवरी पर दुकान में भुगतान · Razorpay जल्द',
+      reviewsTitle: 'समीक्षाएँ',
+      cartTitle: 'आपका कार्ट', measAttached: 'नाप जुड़ा है', remove: 'हटाएँ',
+      promoPh: 'प्रोमो (ARLI10)', apply: 'लागू करें', discount: 'छूट', total: 'कुल',
+      youllEarn: 'आपको मिलेंगे', loyaltyPts: 'लॉयल्टी पॉइंट',
+      cartEmpty: 'आपका कार्ट खाली है।', startShopping: 'खरीदारी शुरू करें',
+      loginProceed: 'जारी रखने के लिए लॉगिन', checkoutProceed: 'चेकआउट करें',
+      loginTitle: 'स्वागत है', loginSub: 'फ़ोन नंबर से लॉगिन करें या खाता बनाएँ।',
+      phoneLabel: 'फ़ोन नंबर', sendOtp: 'OTP भेजें', or: 'या', googleBtn: 'Google से जारी रखें', devfrogsBtn: 'Devfrogs से जारी रखें',
+      otpTitle: 'OTP डालें', otpSub: 'कोड भेजा गया', otpHint: 'डेमो: कोई भी 4 अंक चलेंगे',
+      verify: 'सत्यापित करें', changeNumber: 'नंबर बदलें',
+      checkoutTitle: 'चेकआउट', deliveryAddr: 'डिलीवरी पता', fullName: 'पूरा नाम',
+      addressPh: 'मकान, गली, इलाक़ा…', payment: 'भुगतान', payAtShopOpt: 'दुकान पर भुगतान',
+      payAtShopSub: 'डिलीवरी पर नकद या UPI', comingSoon: 'जल्द आ रहा है',
+      orderSummary: 'ऑर्डर सारांश', placeOrder: 'ऑर्डर करें',
+      orderPlaced: 'ऑर्डर हो गया!', orderId: 'ऑर्डर ID', statusTitle: 'ऑर्डर स्थिति',
+      stPlaced: 'प्लेस्ड', stAccepted: 'स्वीकृत', stProgress: 'बन रहा है', stReady: 'तैयार', stDelivered: 'डिलीवर',
+      continueShopping: 'खरीदारी जारी रखें',
+      online: 'ऑनलाइन', repliesFast: 'मिनटों में जवाब', typing: 'लिख रहे हैं',
+      shareMeas: 'नाप भेजें', askPrice: 'सबसे अच्छा दाम?', chatPh: 'संदेश लिखें…',
+      toastAdded: 'कार्ट में जुड़ गया', toastMeasShared: 'नाप भेज दिया गया',
+      catAll: 'सभी', catFabric: 'कपड़े', catGarment: 'गारमेंट', catService: 'सिलाई',
+      tabHome: 'होम', tabExplore: 'खोजें', tabChat: 'चैट', tabCart: 'कार्ट',
+      footerAbout: 'लोकल फ़ैशन मार्केटप्लेस — दर्ज़ी, कपड़ा थोक विक्रेता, बुटीक और डिज़ाइनरों को पास के ग्राहकों से जोड़ता है।',
+      lastUpdated: 'अंतिम अपडेट', grievanceShort: 'शिकायत अधिकारी: grievance@arli.in',
+      legalTerms: 'सेवा की शर्तें', legalPrivacy: 'गोपनीयता नीति', legalReturns: 'रिटर्न और रद्दीकरण', legalGrievance: 'शिकायत निवारण', legalShipping: 'शिपिंग और डिलीवरी', tabShop: 'मेरी दुकान',
+      onbQ1: 'आपका व्यवसाय किस तरह का है?', onbQ2: 'अपनी दुकान के बारे में बताएँ',
+      shopNameLabel: 'दुकान का नाम', shopNamePh: 'जैसे मीरा टेलर्स', shopDescPh: 'आप क्या बेचते या सिलते हैं?',
+      continueBtn: 'आगे बढ़ें', backBtn: 'पीछे', launchBtn: 'दुकान शुरू करें',
+      onbDone: 'आपकी दुकान लाइव है!', onbDoneSub: 'पास के ग्राहक अब आपको ARLI पर देख सकते हैं।', goDash: 'डैशबोर्ड खोलें',
+      viewAsCustomer: 'ग्राहक के रूप में देखें',
+      dashOrders: 'ऑर्डर', dashListings: 'लिस्टिंग', dashChats: 'चैट', dashAds: 'विज्ञापन', dashStats: 'एनालिटिक्स',
+      addListing: 'जोड़ें', listingNamePh: 'लिस्टिंग का नाम', priceLabel: 'क़ीमत (₹)', inStock: 'स्टॉक में', viewsWord: 'व्यू',
+      adsTitle: 'अपनी लिस्टिंग प्रमोट करें', adsSub: 'दैनिक बजट तय करें और आपकी लिस्टिंग सर्च में सबसे ऊपर "प्रायोजित" दिखेगी।',
+      dailyBudget: 'दैनिक बजट', startAd: 'विज्ञापन शुरू करें', stopAd: 'विज्ञापन रोकें', adRunning: 'विज्ञापन चल रहा है', estReach: 'अनुमानित दैनिक व्यू',
+      statViews: 'लिस्टिंग व्यू', statOrders: 'कुल ऑर्डर', statRevenue: 'आय', statChats: 'चैट शुरू हुईं',
+      last30: 'पिछले 30 दिन', viewsPerListing: 'हर लिस्टिंग के व्यू',
+      replyBtn: 'जवाब दें', unreadWord: 'नई',
+      viewShop: 'दुकान देखें', designsTitle: 'डिज़ाइन पोर्टफोलियो', shopListingsTitle: 'लिस्टिंग',
+      uploadDesign: 'डिज़ाइन रेफ़रेंस जोड़ें', uploadDesignSub: 'जो स्टाइल सिलवानी है उसकी फोटो',
+      chooseFile: 'अपलोड', removeFile: 'हटाएँ', designAttached: 'डिज़ाइन जुड़ा है',
+      invoiceBtn: 'इनवॉइस', slipBtn: 'डिलीवरी स्लिप', invoiceTitle: 'टैक्स इनवॉइस', slipTitle: 'डिलीवरी स्लिप',
+      billedTo: 'बिल प्राप्तकर्ता', deliverTo: 'डिलीवरी पता', itemWord: 'आइटम', amountWord: 'राशि',
+      downloadBtn: 'PDF डाउनलोड', closeBtn: 'बंद करें', signature: 'प्राप्तकर्ता के हस्ताक्षर',
+      dashDesigns: 'डिज़ाइन', custRequests: 'ग्राहकों के डिज़ाइन अनुरोध', acceptBtn: 'स्वीकारें', acceptedMark: 'स्वीकृत',
+      addDesign: 'जोड़ें', designNamePh: 'डिज़ाइन का नाम',
+      docDownloaded: 'डाउनलोड हो गया (डेमो)',
+    }
+  };
+
+  LEGAL = {
+    terms: {
+      en: [
+        { h: '1. The platform', p: 'ARLI is a marketplace that connects customers with independent sellers — tailors, fabric wholesalers, boutiques, designers and garment shops. Each order is a contract between you and the seller; ARLI facilitates discovery, chat, ordering and payments.' },
+        { h: '2. Accounts', p: 'You must be 18 or older to place orders. Keep your OTP and account details private. Businesses must provide accurate PAN, GSTIN and bank details as required by Indian marketplace rules.' },
+        { h: '3. Listings & pricing', p: 'Sellers are responsible for the accuracy of their listings, prices and stock. Prices include applicable GST where the seller is registered. Sponsored listings are always marked "Sponsored".' },
+        { h: '4. Reviews', p: 'Only customers with a delivered order can review. Fake, incentivised or manipulated reviews are prohibited under the Consumer Protection (E-Commerce) Rules, 2020 and lead to account termination.' },
+        { h: '5. Prohibited conduct', p: 'No counterfeit goods, misleading claims, or off-platform payment solicitation. ARLI may suspend accounts that violate these terms.' },
+      ],
+      hi: [
+        { h: '1. प्लेटफ़ॉर्म', p: 'ARLI एक मार्केटप्लेस है जो ग्राहकों को स्वतंत्र विक्रेताओं — दर्ज़ी, कपड़ा थोक विक्रेता, बुटीक, डिज़ाइनर और गारमेंट दुकानों — से जोड़ता है। हर ऑर्डर आपके और विक्रेता के बीच अनुबंध है; ARLI खोज, चैट, ऑर्डर और भुगतान की सुविधा देता है।' },
+        { h: '2. खाते', p: 'ऑर्डर करने के लिए आयु 18+ होनी चाहिए। अपना OTP और खाता विवरण गुप्त रखें। व्यवसायों को भारतीय मार्केटप्लेस नियमों के अनुसार सही PAN, GSTIN और बैंक विवरण देना ज़रूरी है।' },
+        { h: '3. लिस्टिंग और क़ीमतें', p: 'लिस्टिंग, क़ीमत और स्टॉक की सटीकता की ज़िम्मेदारी विक्रेता की है। GST-पंजीकृत विक्रेताओं की क़ीमतों में लागू GST शामिल है। प्रायोजित लिस्टिंग हमेशा "प्रायोजित" चिह्नित होती हैं।' },
+        { h: '4. समीक्षाएँ', p: 'सिर्फ़ डिलीवर हुए ऑर्डर वाले ग्राहक ही समीक्षा कर सकते हैं। उपभोक्ता संरक्षण (ई-कॉमर्स) नियम, 2020 के तहत नकली या प्रायोजित समीक्षाएँ प्रतिबंधित हैं।' },
+        { h: '5. प्रतिबंधित आचरण', p: 'नकली सामान, भ्रामक दावे या प्लेटफ़ॉर्म के बाहर भुगतान माँगना मना है। नियम तोड़ने पर ARLI खाता निलंबित कर सकता है।' },
+      ],
+    },
+    privacy: {
+      en: [
+        { h: '1. What we collect', p: 'Phone number, name, delivery addresses, saved body measurements, order history and chat messages. Measurements are collected only when you choose to save them.' },
+        { h: '2. How it\u2019s used', p: 'To fulfil orders, share measurements with a seller only when you attach them, show nearby listings by pincode, and send order updates. We follow the Digital Personal Data Protection Act, 2023 (DPDP Act).' },
+        { h: '3. Sharing', p: 'Sellers see your name, order details and any measurements or design photos you attach. We never sell personal data. Payment processing is handled by Razorpay when online payments go live.' },
+        { h: '4. Your rights', p: 'You can access, correct or delete your data — including saved measurements — from your profile, or by writing to privacy@arli.in. Deletion requests are honoured within 30 days.' },
+      ],
+      hi: [
+        { h: '1. हम क्या इकट्ठा करते हैं', p: 'फ़ोन नंबर, नाम, डिलीवरी पते, सेव किए नाप, ऑर्डर इतिहास और चैट संदेश। नाप सिर्फ़ तभी लिया जाता है जब आप उसे सेव करना चुनें।' },
+        { h: '2. उपयोग कैसे होता है', p: 'ऑर्डर पूरा करने, आपके जोड़ने पर ही विक्रेता से नाप साझा करने, पिनकोड से पास की लिस्टिंग दिखाने और ऑर्डर अपडेट भेजने के लिए। हम डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम, 2023 (DPDP) का पालन करते हैं।' },
+        { h: '3. साझा करना', p: 'विक्रेता को आपका नाम, ऑर्डर विवरण और आपके जोड़े नाप या डिज़ाइन फोटो दिखते हैं। हम व्यक्तिगत डेटा कभी नहीं बेचते। ऑनलाइन भुगतान शुरू होने पर प्रोसेसिंग Razorpay करेगा।' },
+        { h: '4. आपके अधिकार', p: 'आप अपना डेटा — सेव किए नाप सहित — प्रोफ़ाइल से या privacy@arli.in पर लिखकर देख, सुधार या हटा सकते हैं। हटाने के अनुरोध 30 दिनों में पूरे होते हैं।' },
+      ],
+    },
+    returns: {
+      en: [
+        { h: '1. Cancellations', p: 'Ready-made items: cancel free until the seller marks the order "Accepted". Custom tailoring: cancel free until stitching begins ("In progress"); after that, fabric costs may be deducted.' },
+        { h: '2. Returns', p: 'Ready-made garments and fabrics: return within 7 days of delivery if unused and unwashed. Custom-stitched items cannot be returned, but fit issues are fixed free within 15 days — one alteration per order.' },
+        { h: '3. Refunds', p: 'Pay-at-shop orders are settled directly with the seller. Once online payments launch, refunds reach your original payment method within 5–7 working days of pickup or approval.' },
+        { h: '4. Disputes', p: 'If a seller rejects a fair return, raise it in the order chat or write to grievance@arli.in — ARLI mediates within 72 hours.' },
+      ],
+      hi: [
+        { h: '1. रद्दीकरण', p: 'रेडीमेड: विक्रेता के "स्वीकृत" करने तक मुफ़्त रद्द करें। कस्टम सिलाई: सिलाई शुरू होने ("बन रहा है") तक मुफ़्त; उसके बाद कपड़े की लागत काटी जा सकती है।' },
+        { h: '2. रिटर्न', p: 'रेडीमेड गारमेंट और कपड़े: डिलीवरी के 7 दिनों में लौटाएँ (बिना इस्तेमाल/धुलाई)। कस्टम सिले कपड़े वापस नहीं होते, पर फिटिंग की समस्या 15 दिनों में मुफ़्त ठीक होती है — प्रति ऑर्डर एक बदलाव।' },
+        { h: '3. रिफ़ंड', p: 'दुकान-पर-भुगतान ऑर्डर सीधे विक्रेता से निपटते हैं। ऑनलाइन भुगतान शुरू होने पर रिफ़ंड 5–7 कार्यदिवसों में मूल भुगतान माध्यम में आएगा।' },
+        { h: '4. विवाद', p: 'अगर विक्रेता उचित रिटर्न न माने तो ऑर्डर चैट में उठाएँ या grievance@arli.in पर लिखें — ARLI 72 घंटों में मध्यस्थता करता है।' },
+      ],
+    },
+    grievance: {
+      en: [
+        { h: 'Grievance officer', p: 'As required by the Consumer Protection (E-Commerce) Rules, 2020 and the IT Rules, 2021:\nName: Kavita Sharma\nEmail: grievance@arli.in\nPhone: 1800-000-0000 (Mon–Sat, 10:00–18:00 IST)' },
+        { h: 'Timelines', p: 'Complaints are acknowledged within 48 hours with a ticket number, and resolved within 30 days. Track status any time from your profile.' },
+        { h: 'Escalation', p: 'Unresolved? Escalate to the National Consumer Helpline (1915, consumerhelpline.gov.in) or your district consumer commission.' },
+      ],
+      hi: [
+        { h: 'शिकायत अधिकारी', p: 'उपभोक्ता संरक्षण (ई-कॉमर्स) नियम, 2020 और IT नियम, 2021 के अनुसार:\nनाम: कविता शर्मा\nईमेल: grievance@arli.in\nफ़ोन: 1800-000-0000 (सोम–शनि, 10:00–18:00 IST)' },
+        { h: 'समय-सीमा', p: 'शिकायत 48 घंटों में टिकट नंबर के साथ स्वीकार होती है और 30 दिनों में हल होती है। स्थिति प्रोफ़ाइल से देखें।' },
+        { h: 'आगे शिकायत', p: 'हल न हो? राष्ट्रीय उपभोक्ता हेल्पलाइन (1915, consumerhelpline.gov.in) या ज़िला उपभोक्ता आयोग में जाएँ।' },
+      ],
+    },
+    shipping: {
+      en: [
+        { h: '1. Delivery', p: 'Sellers deliver locally or offer shop pickup — the listing shows which. Typical local delivery is 1–3 days for ready items; tailoring follows the quoted stitching time.' },
+        { h: '2. Charges', p: 'Delivery charges, if any, are shown by the seller before you place the order. Pickup at shop is always free.' },
+        { h: '3. Tracking', p: 'Every order moves through Placed → Accepted → In progress → Ready → Delivered. You get an update at each step, and can chat with the shop any time.' },
+      ],
+      hi: [
+        { h: '1. डिलीवरी', p: 'विक्रेता लोकल डिलीवरी करते हैं या दुकान से पिकअप देते हैं — लिस्टिंग में लिखा होता है। रेडीमेड की लोकल डिलीवरी आम तौर पर 1–3 दिन; सिलाई बताए गए समय के अनुसार।' },
+        { h: '2. शुल्क', p: 'डिलीवरी शुल्क, अगर हो, ऑर्डर से पहले विक्रेता दिखाता है। दुकान से पिकअप हमेशा मुफ़्त।' },
+        { h: '3. ट्रैकिंग', p: 'हर ऑर्डर प्लेस्ड → स्वीकृत → बन रहा है → तैयार → डिलीवर से गुज़रता है। हर चरण पर अपडेट मिलता है, और दुकान से कभी भी चैट कर सकते हैं।' },
+      ],
+    },
+  };
+
+  weave(base, accent) {
+    return 'repeating-linear-gradient(45deg,' + base + ' 0px,' + base + ' 9px,' + accent + ' 9px,' + accent + ' 11px)';
+  }
+
+  LISTINGS = [
+    { id: 1, cat: 'fabric', price: 850, base: '#7A2E4D', acc: '#8F3F5E', sponsored: true, rating: '4.8', reviews: 214, pincode: '221001', measurable: false,
+      name: { en: 'Banarasi Silk (per meter)', hi: 'बनारसी सिल्क (प्रति मीटर)' }, shop: { en: 'Varanasi Vastra Bhandar', hi: 'वाराणसी वस्त्र भंडार' },
+      desc: { en: 'Handloom Banarasi silk with fine zari borders. Ideal for sarees, lehengas and festive blouses.', hi: 'हैंडलूम बनारसी सिल्क, बारीक ज़री बॉर्डर के साथ। साड़ी, लहंगा और ब्लाउज़ के लिए उत्तम।' } },
+    { id: 2, cat: 'fabric', price: 420, base: '#C9A96A', acc: '#D8BC82', sponsored: false, rating: '4.6', reviews: 158, pincode: '473446', measurable: false,
+      name: { en: 'Chanderi Cotton (per meter)', hi: 'चंदेरी कॉटन (प्रति मीटर)' }, shop: { en: 'Chanderi Weaves', hi: 'चंदेरी वीव्स' },
+      desc: { en: 'Lightweight Chanderi cotton with a soft sheen — breathable for daily kurtas and dupattas.', hi: 'हल्का चंदेरी कॉटन, हल्की चमक के साथ — रोज़ के कुर्तों और दुपट्टों के लिए।' } },
+    { id: 3, cat: 'service', price: 1200, base: '#39597B', acc: '#48688A', sponsored: false, rating: '4.9', reviews: 341, pincode: '110005', measurable: true,
+      name: { en: 'Custom Kurta Stitching', hi: 'कस्टम कुर्ता सिलाई' }, shop: { en: 'Meera Tailors', hi: 'मीरा टेलर्स' },
+      desc: { en: 'Made-to-measure kurta stitching in 4–5 days. Bring your fabric or pick from ours.', hi: '4–5 दिन में नाप के अनुसार कुर्ता सिलाई। अपना कपड़ा लाएँ या हमारा चुनें।' } },
+    { id: 4, cat: 'garment', price: 1499, base: '#4E6B4B', acc: '#5E7C5A', sponsored: false, rating: '4.5', reviews: 96, pincode: '302001', measurable: false,
+      name: { en: 'Block-print Cotton Kurta', hi: 'ब्लॉक-प्रिंट कॉटन कुर्ता' }, shop: { en: 'Jaipur Boutique', hi: 'जयपुर बुटीक' },
+      desc: { en: 'Hand block-printed Sanganeri kurta in pure cotton. Sizes S–XXL in stock.', hi: 'शुद्ध कॉटन में हाथ से ब्लॉक-प्रिंटेड सांगानेरी कुर्ता। S–XXL साइज़ उपलब्ध।' } },
+    { id: 5, cat: 'fabric', price: 680, base: '#9D9077', acc: '#ADA189', sponsored: false, rating: '4.7', reviews: 127, pincode: '560002', measurable: false,
+      name: { en: 'Pure Linen (per meter)', hi: 'शुद्ध लिनन (प्रति मीटर)' }, shop: { en: 'South Loom House', hi: 'साउथ लूम हाउस' },
+      desc: { en: '100% flax linen, 60 lea. Cool, crisp drape for shirts and summer kurtas.', hi: '100% फ्लैक्स लिनन, 60 ली। शर्ट और गर्मियों के कुर्तों के लिए।' } },
+    { id: 6, cat: 'service', price: 800, base: '#8A5A3B', acc: '#9A6A4B', sponsored: false, rating: '4.8', reviews: 268, pincode: '400002', measurable: true,
+      name: { en: 'Blouse Stitching (lined)', hi: 'ब्लाउज़ सिलाई (लाइनिंग सहित)' }, shop: { en: 'Silai Ghar', hi: 'सिलाई घर' },
+      desc: { en: 'Princess-cut or katori blouse with lining, 3-day delivery. Perfect fit with saved measurements.', hi: 'प्रिंसेस-कट या कटोरी ब्लाउज़, लाइनिंग सहित, 3 दिन में।' } },
+    { id: 7, cat: 'garment', price: 999, base: '#31434F', acc: '#40525E', sponsored: false, rating: '4.4', reviews: 73, pincode: '370001', measurable: false,
+      name: { en: 'Ajrakh Dupatta', hi: 'अजरख दुपट्टा' }, shop: { en: 'Kutch Craft Co.', hi: 'कच्छ क्राफ्ट को.' },
+      desc: { en: 'Natural-dyed Ajrakh dupatta from Kutch, 2.4m, indigo and madder.', hi: 'कच्छ का प्राकृतिक रंगों वाला अजरख दुपट्टा, 2.4 मी।' } },
+    { id: 8, cat: 'fabric', price: 390, base: '#B0473A', acc: '#C0574A', sponsored: true, rating: '4.3', reviews: 412, pincode: '395002', measurable: false,
+      name: { en: 'Raw Silk — Wholesale', hi: 'रॉ सिल्क — थोक' }, shop: { en: 'Surat Textile Mart', hi: 'सूरत टेक्सटाइल मार्ट' },
+      desc: { en: 'Wholesale raw silk, min. 5 meters. Bulk rates for boutiques and designers.', hi: 'थोक रॉ सिल्क, न्यूनतम 5 मीटर। बुटीक के लिए थोक दाम।' } },
+  ];
+
+  toast(msg) {
+    this.setState({ toastMsg: msg, toastShow: true });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(() => this.setState({ toastShow: false }), 2200);
+  }
+
+  scrollTop() {
+    let node = this._root;
+    while (node) { if (node.scrollTop) node.scrollTop = 0; node = node.parentElement; }
+  }
+
+  go(screen) { this.setState({ screen }); setTimeout(() => this.scrollTop(), 30); }
+
+  openListing(id) { this.setState({ selId: id, qty: 1, attachMeas: false }); this.go('listing'); }
+
+  startChat(item) {
+    const s = this.state, lang = s.lang;
+    const shop = item ? item.shop[lang] : (lang === 'hi' ? 'मीरा टेलर्स' : 'Meera Tailors');
+    const greet = lang === 'hi' ? 'नमस्ते! ' + shop + ' में आपका स्वागत है। हम आपकी क्या मदद करें?' : 'Namaste! Welcome to ' + shop + '. How can we help you today?';
+    this.setState({ chatShop: shop, chatMsgs: [{ who: 'shop', text: greet }] });
+    this.go('chat');
+  }
+
+  shopReply(text) {
+    this.setState({ shopTyping: true });
+    setTimeout(() => {
+      this.setState(s => ({ shopTyping: false, chatMsgs: [...s.chatMsgs, { who: 'shop', text }] }));
+    }, 1400);
+  }
+
+  cartSubNum() { return this.state.cart.reduce((a, c) => a + c.price * c.qty, 0); }
+  cartTotalNum() {
+    const sub = this.cartSubNum();
+    return this.state.promoApplied ? Math.round(sub * 0.9) : sub;
+  }
+
+  placeOrderNow() {
+    const s = this.state;
+    const total = this.cartTotalNum();
+    const earned = Math.floor(total / 100);
+    this.setState({
+      orderId: 'ARL-' + (2400 + Math.floor(Math.random() * 500)),
+      lastEarned: earned, points: s.points + earned,
+      cart: [], promo: '', promoApplied: false, promoMsg: '',
+    });
+    this.go('success');
+  }
+
+  renderVals() {
+    const s = this.state, lang = s.lang, t = this.T[lang];
+    const st = (obj) => this.setState(obj);
+
+    const listings = this.LISTINGS.map(l => ({
+      ...l,
+      name: l.name[lang], shop: l.shop[lang], desc: l.desc[lang],
+      swatch: this.weave(l.base, l.acc),
+      unit: l.cat === 'fabric' ? (lang === 'hi' ? '/मी' : '/m') : '',
+      open: () => this.openListing(l.id),
+    }));
+
+    const q = s.query.trim().toLowerCase();
+    const results = listings.filter(l => {
+      if (s.cat !== 'all' && l.cat !== s.cat) return false;
+      if (s.priceMax !== '0' && l.price > Number(s.priceMax)) return false;
+      if (s.pincode && !l.pincode.startsWith(s.pincode)) return false;
+      if (q && !(l.name.toLowerCase().includes(q) || l.shop.toLowerCase().includes(q) || l.desc.toLowerCase().includes(q))) return false;
+      return true;
+    }).sort((a, b) => (b.sponsored ? 1 : 0) - (a.sponsored ? 1 : 0));
+
+    const sel = listings.find(l => l.id === s.selId) || listings[0];
+
+    const measLabels = lang === 'hi'
+      ? { chest: 'छाती', waist: 'कमर', hip: 'हिप', shoulder: 'कंधा', sleeve: 'बाजू', length: 'लंबाई' }
+      : { chest: 'Chest', waist: 'Waist', hip: 'Hip', shoulder: 'Shoulder', sleeve: 'Sleeve', length: 'Length' };
+    const measFields = Object.keys(s.meas).map(k => ({
+      label: measLabels[k], value: s.meas[k],
+      onChange: (e) => st({ meas: { ...s.meas, [k]: e.target.value } }),
+    }));
+
+    const cartRows = s.cart.map((c, i) => ({
+      ...c, total: c.price * c.qty,
+      remove: () => st({ cart: s.cart.filter((_, j) => j !== i) }),
+    }));
+
+    const cats = ['all', 'fabric', 'garment', 'service'];
+    const catLabels = { all: t.catAll, fabric: t.catFabric, garment: t.catGarment, service: t.catService };
+    const catChips = cats.map(c => ({
+      label: catLabels[c],
+      bg: s.cat === c ? '#2A3B66' : '#fff', fg: s.cat === c ? '#FAF5EC' : '#5C5546',
+      border: s.cat === c ? '#2A3B66' : '#D8CDB4',
+      select: () => st({ cat: c }),
+    }));
+
+    const heroTiles = [
+      { label: t.catFabric, count: lang === 'hi' ? '4,200 लिस्टिंग' : '4,200 listings', swatch: this.weave('#C9A96A', '#D8BC82'), go: () => { st({ cat: 'fabric' }); this.go('explore'); } },
+      { label: t.catService, count: lang === 'hi' ? '2,800 दर्ज़ी' : '2,800 tailors', swatch: this.weave('#2A3B66', '#3A4E82'), go: () => { st({ cat: 'service' }); this.go('explore'); } },
+      { label: t.catGarment, count: lang === 'hi' ? '3,600 लिस्टिंग' : '3,600 listings', swatch: this.weave('#B0473A', '#C0574A'), go: () => { st({ cat: 'garment' }); this.go('explore'); } },
+      { label: lang === 'hi' ? 'बुटीक' : 'Boutiques', count: lang === 'hi' ? '1,400 दुकानें' : '1,400 shops', swatch: this.weave('#4E6B4B', '#5E7C5A'), go: () => { st({ cat: 'all' }); this.go('explore'); } },
+    ];
+
+    const trending = (lang === 'hi' ? ['सिल्क', 'कुर्ता सिलाई', 'लिनन'] : ['silk', 'kurta stitching', 'linen']).map(w => ({
+      label: w, go: () => { st({ query: w }); this.go('explore'); },
+    }));
+
+    const sampleReviews = lang === 'hi' ? [
+      { who: 'अंजलि S.', stars: '★★★★★', text: 'कपड़े की क्वालिटी बिल्कुल फोटो जैसी। चैट पर तुरंत जवाब मिला।' },
+      { who: 'राहुल M.', stars: '★★★★☆', text: 'नाप भेजना बहुत आसान था — फिटिंग एकदम सही आई।' },
+    ] : [
+      { who: 'Anjali S.', stars: '★★★★★', text: 'Fabric quality exactly like the photos. Quick replies on chat.' },
+      { who: 'Rahul M.', stars: '★★★★☆', text: 'Sharing measurements was so easy — the fit came out perfect.' },
+    ];
+
+    const statusLabels = [t.stPlaced, t.stAccepted, t.stProgress, t.stReady, t.stDelivered];
+    const statusSteps = statusLabels.map((label, i) => ({
+      label, mark: i === 0 ? '✓' : String(i + 1),
+      bg: i === 0 ? '#2E7D5B' : '#fff', fg: i === 0 ? '#fff' : '#B8AF9B',
+      border: i === 0 ? '#2E7D5B' : '#E4DBC8',
+      labelColor: i === 0 ? '#22201C' : '#B8AF9B',
+    }));
+
+    const measText = () => {
+      const m = s.meas, L = measLabels;
+      return '📏 ' + (lang === 'hi' ? 'मेरा नाप' : 'My measurements') + ':\n' +
+        Object.keys(m).map(k => L[k] + ': ' + m[k] + '"').join('  ·  ');
+    };
+
+    const chatMsgs = s.chatMsgs.map(m => ({
+      text: m.text,
+      align: m.who === 'me' ? 'flex-end' : 'flex-start',
+      bg: m.who === 'me' ? '#2A3B66' : '#fff',
+      fg: m.who === 'me' ? '#FAF5EC' : '#22201C',
+    }));
+
+    const sendMsg = (text) => {
+      if (!text.trim()) return;
+      this.setState(prev => ({ chatMsgs: [...prev.chatMsgs, { who: 'me', text }], chatInput: '' }));
+      const reply = lang === 'hi' ? 'जी ज़रूर! हम अभी देखकर बताते हैं। 🙏' : 'Sure ji! Let me check and get back to you right away. 🙏';
+      this.shopReply(reply);
+    };
+
+    const sub = this.cartSubNum();
+    const totalNum = this.cartTotalNum();
+    const cartCount = s.cart.reduce((a, c) => a + c.qty, 0);
+
+    const mkTab = (key, icon, label, badge) => ({
+      icon, label, badge,
+      showBadge: !!badge,
+      color: s.screen === key ? '#C2492F' : '#8A8270',
+      iconFilter: s.screen === key ? 'none' : 'grayscale(1) opacity(.6)',
+      go: () => key === 'chat' ? this.startChat(null) : this.go(key),
+    });
+    const tabs = [
+      mkTab('home', '🏠', t.tabHome, 0),
+      mkTab('explore', '🔍', t.tabExplore, 0),
+      mkTab('chat', '💬', t.tabChat, 0),
+      mkTab('cart', '🛍️', t.tabCart, cartCount),
+    ];
+
+    const bizTypesDef = [
+      { k: 'tailor', icon: '✂️', en: 'Tailor', hi: 'दर्ज़ी' },
+      { k: 'wholesaler', icon: '🧵', en: 'Fabric wholesaler', hi: 'कपड़ा थोक विक्रेता' },
+      { k: 'boutique', icon: '👗', en: 'Boutique', hi: 'बुटीक' },
+      { k: 'designer', icon: '✏️', en: 'Fashion designer', hi: 'फ़ैशन डिज़ाइनर' },
+      { k: 'garment', icon: '🏬', en: 'Garment shop', hi: 'गारमेंट दुकान' },
+      { k: 'warehouse', icon: '📦', en: 'Warehouse', hi: 'वेयरहाउस' },
+    ];
+    const bizTypeTiles = bizTypesDef.map(b => ({
+      icon: b.icon, label: lang === 'hi' ? b.hi : b.en,
+      border: s.bizType === b.k ? '#2A3B66' : '#E4DBC8',
+      bg: s.bizType === b.k ? '#EDF0F7' : '#fff',
+      select: () => st({ bizType: b.k }),
+    }));
+    const bizOrderRows = s.bizOrders.map((o, i) => ({
+      id: o.id, cust: o.cust[lang], item: o.item[lang], qty: o.qty, amt: o.amt, meas: o.meas,
+      statusLabel: statusLabels[o.status],
+      pillBg: o.status === 4 ? '#E3F2EA' : '#FBF3E0', pillFg: o.status === 4 ? '#2E7D5B' : '#A5732A',
+      canAdvance: o.status < 4,
+      nextLabel: o.status < 4 ? statusLabels[o.status + 1] : '',
+      dots: statusLabels.map((_, d) => ({ bg: d <= o.status ? '#2E7D5B' : '#E4DBC8' })),
+      advance: () => st({ bizOrders: s.bizOrders.map((x, j) => j === i ? { ...x, status: Math.min(4, x.status + 1) } : x) }),
+      invoice: () => st({ invoiceOrder: o, invoiceType: 'invoice' }),
+      slip: () => st({ invoiceOrder: o, invoiceType: 'slip' }),
+    }));
+    const bizListingRows = s.bizListings.map(l => ({
+      name: l.name[lang], price: l.price, stock: l.stock, views: l.views,
+      swatch: this.weave(l.base, l.acc),
+    }));
+    const maxViews = Math.max(...s.bizListings.map(l => l.views), 1);
+    const viewsBars = s.bizListings.map(l => ({ name: l.name[lang], views: l.views, pct: Math.round(l.views / maxViews * 100) + '%' }));
+    const bizChatRows = s.bizChats.map((c, i) => ({
+      cust: c.cust[lang], last: c.last[lang], unread: c.unread, initial: c.cust.en[0],
+      reply: () => st({ bizChats: s.bizChats.map((x, j) => j === i ? { ...x, unread: false, last: { en: 'You: Sure ji! 🙏', hi: 'आप: जी, बिल्कुल! 🙏' } } : x) }),
+    }));
+    const bizTabsDef = [['orders', t.dashOrders], ['listings', t.dashListings], ['designs', t.dashDesigns], ['chats', t.dashChats], ['ads', t.dashAds], ['stats', t.dashStats]];
+    const designTiles = s.bizDesigns.map(d => ({ name: d.name[lang], swatch: this.weave(d.base, d.acc) }));
+    const shopRef = listings.find(l => l.id === s.shopSel) || listings[2];
+    const shopIconMap = { fabric: '🧵', garment: '👗', service: '✂️' };
+    const shopCatLabels = { fabric: t.catFabric, garment: t.catGarment, service: t.catService };
+    const designReqRows = s.designRequests.map((r, i) => ({
+      cust: r.cust[lang], note: r.note[lang], pending: !r.accepted, accepted: r.accepted,
+      swatch: this.weave(r.base, r.base),
+      accept: () => st({ designRequests: s.designRequests.map((x, j) => j === i ? { ...x, accepted: true } : x) }),
+    }));
+    const inv = s.invoiceOrder;
+    const bizTabs = bizTabsDef.map(([k, label]) => ({
+      label, bg: s.bizTab === k ? '#2A3B66' : '#fff', fg: s.bizTab === k ? '#FAF5EC' : '#5C5546', border: s.bizTab === k ? '#2A3B66' : '#D8CDB4',
+      select: () => st({ bizTab: k }),
+    }));
+
+    return {
+      isBizOnboard: s.screen === 'bizOnboard', isBizDash: s.screen === 'bizDash',
+      isBizStep1: s.bizStep === 1, isBizStep2: s.bizStep === 2, isBizStep3: s.bizStep === 3,
+      bizStepLabel: (lang === 'hi' ? 'चरण ' : 'Step ') + s.bizStep + (lang === 'hi' ? ' / 3' : ' of 3'),
+      startBizOnboard: () => { st({ bizStep: 1 }); this.go('bizOnboard'); },
+      goBizDash: () => this.go('bizDash'),
+      isBusiness: s.isBusiness,
+      bizTypeTiles,
+      bizNext: () => { if (s.bizType) st({ bizStep: 2 }); else this.toast(lang === 'hi' ? 'एक प्रकार चुनें' : 'Pick a business type'); },
+      bizBack: () => st({ bizStep: Math.max(1, s.bizStep - 1) }),
+      shopName: s.shopName, onShopName: e => st({ shopName: e.target.value }),
+      shopDesc: s.shopDesc, onShopDesc: e => st({ shopDesc: e.target.value }),
+      shopPin: s.shopPin, onShopPin: e => st({ shopPin: e.target.value }),
+      launchShop: () => { if (s.shopName.trim()) st({ bizStep: 3, isBusiness: true, loggedIn: true }); else this.toast(lang === 'hi' ? 'दुकान का नाम डालें' : 'Enter your shop name'); },
+      dashShopName: s.shopName.trim() || (lang === 'hi' ? 'मीरा टेलर्स' : 'Meera Tailors'),
+      bizTabs,
+      isTabOrders: s.bizTab === 'orders', isTabListings: s.bizTab === 'listings', isTabChats: s.bizTab === 'chats', isTabAds: s.bizTab === 'ads', isTabStats: s.bizTab === 'stats',
+      bizOrderRows, bizListingRows, bizChatRows, viewsBars,
+      newLName: s.newLName, onNewLName: e => st({ newLName: e.target.value }),
+      newLPrice: s.newLPrice, onNewLPrice: e => st({ newLPrice: e.target.value }),
+      addBizListing: () => {
+        if (!s.newLName.trim() || !s.newLPrice) { this.toast(lang === 'hi' ? 'नाम और क़ीमत डालें' : 'Enter a name and price'); return; }
+        st({ bizListings: [...s.bizListings, { name: { en: s.newLName, hi: s.newLName }, price: Number(s.newLPrice), stock: '—', views: 0, base: '#5B6B4E', acc: '#6B7B5E' }], newLName: '', newLPrice: '' });
+        this.toast(lang === 'hi' ? 'लिस्टिंग जुड़ गई' : 'Listing added');
+      },
+      adBudget: s.adBudget, onAdBudget: e => st({ adBudget: Number(e.target.value) }),
+      adActive: s.adActive, adToggle: () => st({ adActive: !s.adActive }),
+      adReach: s.adBudget * 12, adBtnLabel: s.adActive ? t.stopAd : t.startAd,
+      statViews: s.bizListings.reduce((a, l) => a + l.views, 0),
+      statOrders: s.bizOrders.length,
+      statRevenue: s.bizOrders.reduce((a, o) => a + o.amt, 0),
+      statChats: 36,
+      isShopProfile: s.screen === 'shopProfile',
+      openShopFromListing: () => { st({ shopSel: sel.id }); this.go('shopProfile'); },
+      backFromShop: () => this.go('listing'),
+      shopProfName: shopRef.shop, shopProfRating: shopRef.rating, shopProfReviews: shopRef.reviews,
+      shopProfType: shopCatLabels[shopRef.cat] || '', shopProfPin: shopRef.pincode, shopProfDesc: shopRef.desc,
+      shopBanner: shopRef.swatch, shopIcon: shopIconMap[shopRef.cat] || '🏬',
+      shopDesigns: designTiles, bizDesignTiles: designTiles,
+      shopListings: listings.filter(l => l.shop === shopRef.shop),
+      chatWithProfShop: () => this.startChat(this.LISTINGS.find(l => l.id === shopRef.id)),
+      onDesignFile: e => { const f = e.target.files && e.target.files[0]; if (f) st({ designImg: URL.createObjectURL(f) }); },
+      hasDesignImg: !!s.designImg,
+      designThumb: s.designImg ? React.createElement('img', { src: s.designImg, style: { width: 52, height: 52, borderRadius: 9, objectFit: 'cover', border: '1px solid #E4DBC8' } }) : null,
+      removeDesign: () => st({ designImg: null }),
+      isTabDesigns: s.bizTab === 'designs',
+      newDesignName: s.newDesignName, onNewDesignName: e => st({ newDesignName: e.target.value }),
+      addBizDesign: () => {
+        if (!s.newDesignName.trim()) { this.toast(lang === 'hi' ? 'डिज़ाइन का नाम डालें' : 'Enter a design name'); return; }
+        st({ bizDesigns: [...s.bizDesigns, { name: { en: s.newDesignName, hi: s.newDesignName }, base: '#5B6B4E', acc: '#6B7B5E' }], newDesignName: '' });
+        this.toast(lang === 'hi' ? 'डिज़ाइन जुड़ गया' : 'Design added');
+      },
+      designReqRows,
+      invoiceOpen: !!inv,
+      invTitle: s.invoiceType === 'slip' ? t.slipTitle : t.invoiceTitle,
+      invIsSlip: s.invoiceType === 'slip',
+      invToLabel: s.invoiceType === 'slip' ? t.deliverTo : t.billedTo,
+      invId: inv ? inv.id : '', invCust: inv ? inv.cust[lang] : '', invItem: inv ? inv.item[lang] : '',
+      invQty: inv ? inv.qty : '', invAmt: inv ? inv.amt : '', invHasMeas: inv ? inv.meas : false,
+      invDate: lang === 'hi' ? '5 जुलाई 2026' : '5 Jul 2026',
+      invAddr: lang === 'hi' ? '12, गांधी रोड, करोल बाग़, दिल्ली' : '12, Gandhi Road, Karol Bagh, Delhi',
+      downloadDoc: () => this.toast(t.docDownloaded),
+      closeInvoice: () => st({ invoiceOrder: null }),
+      t, langLabel: lang === 'en' ? 'हिंदी' : 'Eng',
+      toggleLang: () => st({ lang: lang === 'en' ? 'hi' : 'en' }),
+      rootRef: (el) => { this._root = el; },
+      tabs,
+
+      isHome: s.screen === 'home', isExplore: s.screen === 'explore', isListing: s.screen === 'listing',
+      isCart: s.screen === 'cart', isLogin: s.screen === 'login', isOtp: s.screen === 'otp',
+      isCheckout: s.screen === 'checkout', isSuccess: s.screen === 'success', isChat: s.screen === 'chat',
+
+      goHome: () => this.go('home'), goExplore: () => this.go('explore'),
+      goCart: () => this.go('cart'), goLogin: () => this.go('login'),
+      openChatNav: () => this.startChat(null),
+
+      loggedIn: s.loggedIn, points: s.points,
+
+      query: s.query, onQuery: e => st({ query: e.target.value }),
+      onSearchKey: e => { if (e.key === 'Enter') this.go('explore'); },
+      doSearch: () => this.go('explore'),
+      pincode: s.pincode, onPincode: e => st({ pincode: e.target.value }),
+      priceMax: s.priceMax, onPriceMax: e => st({ priceMax: e.target.value }),
+      catChips, results, resultCount: results.length, noResults: results.length === 0,
+      featured: listings.slice(0, 4), trending, heroTiles,
+      offerCards: lang === 'hi' ? [
+        { mark: '10%', title: 'पहले ऑर्डर पर 10% छूट', sub: 'कोड ARLI10 — चेकआउट पर' },
+        { mark: '★', title: 'हर ₹100 पर 1 पॉइंट', sub: 'हर डिलीवर ऑर्डर पर' },
+        { mark: '📏', title: 'नाप मुफ़्त सेव करें', sub: 'सिलाई ऑर्डर के साथ' },
+      ] : [
+        { mark: '10%', title: '10% off your first order', sub: 'Code ARLI10 at checkout' },
+        { mark: '★', title: '1 point per ₹100', sub: 'On every delivered order' },
+        { mark: '📏', title: 'Free measurement save', sub: 'With any tailoring order' },
+      ],
+      bannerMedia: this.bannerMediaEl(s.banner),
+      bannerTag: this.BANNERS[s.banner].tag[lang],
+      bannerTitle: this.BANNERS[s.banner].title[lang],
+      bannerCtaLabel: this.BANNERS[s.banner].cta[lang],
+      bannerCta: () => { st({ cat: this.BANNERS[s.banner].cat }); this.go('explore'); },
+      bannerNext: () => st({ banner: (s.banner + 1) % this.BANNERS.length }),
+      bannerDots: this.BANNERS.map((_, i) => ({
+        w: i === s.banner ? '20px' : '6px',
+        bg: i === s.banner ? '#E9A23B' : 'rgba(250,245,236,.55)',
+        select: () => st({ banner: i }),
+      })),
+
+      sel, sampleReviews,
+      qty: s.qty, qtyLabel: sel.cat === 'fabric' ? t.qtyMeters : t.qtyPieces,
+      qtyMinus: () => st({ qty: Math.max(1, s.qty - 1) }), qtyPlus: () => st({ qty: s.qty + 1 }),
+      lineTotal: sel.price * s.qty,
+      attachMeas: s.attachMeas, toggleMeas: e => st({ attachMeas: e.target.checked }),
+      measFields,
+      addToCart: () => {
+        st({ cart: [...s.cart, { name: sel.name, shop: sel.shop, price: sel.price, unit: sel.unit, qty: s.qty, swatch: sel.swatch, hasMeas: s.attachMeas && sel.measurable, hasDesign: !!s.designImg && sel.measurable }], designImg: null });
+        this.toast(t.toastAdded);
+      },
+      openChat: () => this.startChat(this.LISTINGS.find(l => l.id === sel.id)),
+
+      hasCart: s.cart.length > 0, cartEmpty: s.cart.length === 0,
+      cartRows, cartSubtotal: sub, cartTotal: totalNum,
+      hasDiscount: s.promoApplied, discountAmt: sub - totalNum,
+      earnPoints: Math.floor(totalNum / 100),
+      promo: s.promo, onPromo: e => st({ promo: e.target.value }),
+      applyPromo: () => {
+        const ok = s.promo.trim().toUpperCase() === 'ARLI10';
+        st({ promoApplied: ok, promoOk: ok, promoMsg: ok ? (lang === 'hi' ? '10% छूट लागू!' : '10% discount applied!') : (lang === 'hi' ? 'अमान्य कोड' : 'Invalid code') });
+      },
+      promoMsgShow: !!s.promoMsg, promoMsg: s.promoMsg, promoColor: s.promoOk ? '#2E7D5B' : '#C2492F',
+      proceedLabel: s.loggedIn ? t.checkoutProceed : t.loginProceed,
+      proceedCheckout: () => {
+        if (s.loggedIn) this.go('checkout');
+        else { st({ afterLogin: 'checkout' }); this.go('login'); }
+      },
+
+      phone: s.phone, onPhone: e => st({ phone: e.target.value }),
+      sendOtp: () => { if (s.phone.trim().length >= 10) this.go('otp'); else this.toast(lang === 'hi' ? '10 अंकों का नंबर डालें' : 'Enter a 10-digit number'); },
+      googleLogin: () => { st({ loggedIn: true }); this.go(s.afterLogin || 'home'); st({ afterLogin: null }); },
+      devfrogsLogin: () => { st({ loggedIn: true }); this.go(s.afterLogin || 'home'); st({ afterLogin: null }); },
+      otp: s.otp, onOtp: e => st({ otp: e.target.value.replace(/\D/g, '').slice(0, 4) }),
+      verifyOtp: () => {
+        if (s.otp.length === 4) { st({ loggedIn: true, afterLogin: null }); this.go(s.afterLogin || 'home'); }
+        else this.toast(lang === 'hi' ? '4 अंक डालें' : 'Enter 4 digits');
+      },
+
+      addrName: s.addrName, onAddrName: e => st({ addrName: e.target.value }),
+      addrText: s.addrText, onAddrText: e => st({ addrText: e.target.value }),
+      addrPin: s.addrPin, onAddrPin: e => st({ addrPin: e.target.value }),
+      placeOrder: () => this.placeOrderNow(),
+      orderId: s.orderId, lastEarned: s.lastEarned, statusSteps,
+
+      chatShopName: s.chatShop || '', chatMsgs, shopTyping: s.shopTyping,
+      chatInput: s.chatInput, onChatInput: e => st({ chatInput: e.target.value }),
+      onChatKey: e => { if (e.key === 'Enter') sendMsg(s.chatInput); },
+      sendChat: () => sendMsg(s.chatInput),
+      shareMeas: () => { sendMsg(measText()); this.toast(t.toastMeasShared); },
+      askPrice: () => sendMsg(lang === 'hi' ? 'इसका सबसे अच्छा दाम क्या होगा?' : 'What is your best price for this?'),
+
+      isLegal: s.screen === 'legal',
+      footLegalLinks: ['terms', 'privacy', 'returns', 'grievance', 'shipping'].map(k => ({
+        label: { terms: t.legalTerms, privacy: t.legalPrivacy, returns: t.legalReturns, grievance: t.legalGrievance, shipping: t.legalShipping }[k],
+        go: () => { st({ legalPage: k }); this.go('legal'); },
+      })),
+      legalTabs: ['terms', 'privacy', 'returns', 'grievance', 'shipping'].map(k => ({
+        label: { terms: t.legalTerms, privacy: t.legalPrivacy, returns: t.legalReturns, grievance: t.legalGrievance, shipping: t.legalShipping }[k],
+        bg: s.legalPage === k ? '#2A3B66' : '#fff', fg: s.legalPage === k ? '#FAF5EC' : '#5C5546',
+        border: s.legalPage === k ? '#2A3B66' : '#D8CDB4',
+        select: () => st({ legalPage: k }),
+      })),
+      legalTitle: { terms: t.legalTerms, privacy: t.legalPrivacy, returns: t.legalReturns, grievance: t.legalGrievance, shipping: t.legalShipping }[s.legalPage],
+      legalBody: this.LEGAL[s.legalPage][lang],
+      toastShow: s.toastShow, toastMsg: s.toastMsg,
+    };
+  }
+}
+</script>
+</body>
+</html>

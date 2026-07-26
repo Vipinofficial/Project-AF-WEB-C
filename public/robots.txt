@@ -1,0 +1,24 @@
+# ARLI Fashion Marketplace - Robots.txt
+User-agent: *
+Allow: /
+Allow: /explore
+Allow: /listing/
+Allow: /categories
+
+# AI & Answer Engine Crawlers (ChatGPT, Perplexity, Gemini, Claude, SearchGPT)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+Sitemap: https://arli.fashion/sitemap.xml

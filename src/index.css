@@ -1,0 +1,625 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+/* ==============================
+   DESIGN TOKENS
+============================== */
+:root {
+  --bg-primary: #FAF6F0;
+  --bg-secondary: #F4ECE1;
+  --border-color: #E4DBC8;
+  --border-focus: #1A2542;
+  --text-primary: #1A2542;
+  --text-secondary: #4A5568;
+  --text-muted: #718096;
+  --color-primary: #1A2542;
+  --color-primary-hover: #111827;
+  --color-accent: #C2492F;
+  --color-accent-hover: #9B3823;
+  --color-gold: #D4AF37;
+  --color-warning: #D4AF37;
+  --color-success: #1E4D3B;
+  --color-placeholder: #A0AEC0;
+  --color-card-bg: #FFFFFF;
+
+  /* Spacing */
+  --page-px: 16px;
+  --page-px-md: 24px;
+  --page-px-lg: 80px;
+}
+
+/* ==============================
+   BASE RESET (MOBILE-FIRST)
+============================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  /* Prevent any single element from causing h-scroll */
+  max-width: 100%;
+}
+
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Bottom padding for floating nav on mobile */
+  padding-bottom: 90px;
+}
+
+input, select, textarea, button {
+  font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+}
+
+::placeholder {
+  color: var(--color-placeholder);
+}
+
+h1, h2, h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+}
+
+/* ==============================
+   ANIMATIONS
+============================== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes heroSlideIn {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tagFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-toast-in {
+  animation: toastIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ==============================
+   UTILITY CLASSES
+============================== */
+.hscroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-x: auto;
+  display: flex;
+}
+.hscroll::-webkit-scrollbar { display: none; }
+
+.hover-scale {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+}
+.hover-scale:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(26, 37, 66, 0.08);
+  border-color: var(--color-gold);
+}
+
+/* ==============================
+   DESKTOP HEADER (always visible on desktop)
+   Hidden on mobile — bottom nav takes over
+============================== */
+.desktop-header {
+  display: flex;
+}
+
+/* ==============================
+   FLOATING GLASSMORPHISM MOBILE NAVBAR
+   Default: hidden. Shows on mobile.
+============================== */
+.mobile-floating-nav {
+  display: none;
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  max-width: 440px;
+  margin: 0 auto;
+  height: 62px;
+  background: rgba(250, 246, 240, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(228, 219, 200, 0.9);
+  border-radius: 999px;
+  box-shadow: 0 12px 40px rgba(26, 37, 66, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 999;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.mobile-floating-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 999px;
+  min-width: 52px;
+  min-height: 44px;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-floating-btn.active {
+  transform: translateY(-2px);
+}
+
+.mobile-icon-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-badge {
+  position: absolute;
+  top: -5px;
+  right: -9px;
+  background-color: var(--color-accent);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 6px rgba(194, 73, 47, 0.5);
+}
+
+.mobile-tab-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.mobile-floating-btn.active .mobile-tab-label {
+  color: var(--color-primary);
+}
+
+/* ==============================
+   HOME PAGE LAYOUT CLASSES
+============================== */
+
+/* Hero inner container */
+.hero-inner {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px var(--page-px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.hero-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(28px, 7vw, 52px);
+  line-height: 1.08;
+  margin: 0;
+  color: #FAF6F0;
+  font-weight: 400;
+  max-width: 580px;
+}
+
+.hero-sub {
+  font-size: clamp(14px, 3.5vw, 16px);
+  line-height: 1.55;
+  color: #E4DBC8;
+  margin: 0;
+  max-width: 480px;
+}
+
+/* Mobile search bar (only shows inside hero on mobile) */
+.hero-mobile-search {
+  display: none;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* Category grid */
+.home-category-grid {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px var(--page-px) 32px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.home-cat-card {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  min-height: 44px;
+}
+
+.home-cat-card:hover {
+  border-color: var(--color-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26,37,66,0.07);
+}
+
+.home-cat-swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 1.5px var(--border-color);
+}
+
+.home-cat-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.home-cat-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}
+
+/* Offers grid */
+.home-offers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* Listings grid */
+.home-listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 22px;
+}
+
+/* How it works grid */
+.home-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* Sticky bottom CTA bar (mobile only) */
+.sticky-mobile-cta {
+  display: none;
+}
+
+/* ==============================
+   PAGE PADDING HELPERS
+============================== */
+.page-section {
+  padding-left: var(--page-px);
+  padding-right: var(--page-px);
+}
+
+/* ==============================
+   LISTING CARD
+============================== */
+.listing-card-img {
+  height: 190px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mobile top bar — logo + cart. Hidden by default, shown on mobile */
+.mobile-top-bar {
+  display: none;
+}
+
+/* ==============================
+   MOBILE BREAKPOINT (≤ 768px)
+============================== */
+@media (max-width: 768px) {
+
+  /* Body — no bottom padding interference from desktop footer */
+  body {
+    padding-bottom: 90px !important;
+  }
+
+  /* --- HEADER: completely hidden on mobile --- */
+  .desktop-header {
+    display: none !important;
+  }
+
+  /* --- MOBILE TOP BAR: visible on mobile --- */
+  .mobile-top-bar {
+    display: flex !important;
+  }
+
+  /* --- FLOATING NAV: visible on mobile --- */
+  .mobile-floating-nav {
+    display: flex;
+  }
+
+  /* --- HERO --- */
+  .hero-inner {
+    padding: 36px 16px 32px;
+    align-items: flex-start;
+  }
+
+  .hero-title {
+    font-size: clamp(26px, 8vw, 34px);
+    max-width: 100%;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  /* Show mobile search inside hero */
+  .hero-mobile-search {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    gap: 6px;
+    background: rgba(255,255,255,0.92);
+    border-radius: 999px;
+    padding: 5px 5px 5px 14px;
+    align-items: center;
+    border: 1.5px solid rgba(228,219,200,0.7);
+    backdrop-filter: blur(8px);
+  }
+
+  .hero-mobile-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-primary);
+    min-width: 0;
+  }
+
+  .hero-mobile-search button {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 36px;
+  }
+
+  /* --- CATEGORIES --- */
+  .home-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 14px 14px 18px;
+  }
+
+  .home-cat-card {
+    padding: 10px 10px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+
+  .home-cat-swatch {
+    width: 36px;
+    height: 36px;
+  }
+
+  .home-cat-title {
+    font-size: 15px;
+  }
+
+  .home-cat-count {
+    font-size: 10px;
+  }
+
+  /* --- OFFERS --- */
+  .home-offers-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* --- FEATURED LISTINGS --- */
+  .home-listings-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* --- HOW IT WORKS --- */
+  .home-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  /* --- LISTING CARD IMAGE --- */
+  .listing-card-img {
+    height: 148px;
+  }
+
+  /* --- PAGE SECTIONS: fix horizontal padding everywhere --- */
+  section, main, .page-section {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  /* --- HERO SECTION: full bleed — no side padding on the wrapper.
+       Only the inner .hero-inner div gets its text padding. --- */
+  .hero-section {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Fix any inline-style padding (overrides) */
+  [style*="padding: 56px 80px"],
+  [style*="padding: 0 80px"],
+  [style*="padding: 56px 24px"],
+  [style*="padding: 32px 24px"],
+  [style*="padding: 48px 24px"] {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  /* --- SECTION HEADINGS --- */
+  h1 { font-size: clamp(26px, 8vw, 36px) !important; }
+  h2 { font-size: clamp(22px, 6vw, 30px) !important; }
+
+  /* --- CHECKOUT GRID: stack to 1 column --- */
+  [style*="gridTemplateColumns: 1.1fr 0.9fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Unsticky the sidebar on mobile */
+  [style*="position: sticky"] {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  /* --- STICKY CTA BAR (mobile) --- */
+  .sticky-mobile-cta {
+    display: flex;
+    position: fixed;
+    bottom: 82px;   /* sits just above the floating nav */
+    left: 0;
+    right: 0;
+    padding: 10px 16px;
+    background: rgba(250, 246, 240, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-color);
+    z-index: 990;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .sticky-mobile-cta button {
+    flex: 1;
+    min-height: 48px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 12px;
+  }
+
+  /* --- EXPLORE PAGE FILTERS --- */
+  .explore-filter-bar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .explore-filter-row2 {
+    display: flex;
+    gap: 8px;
+  }
+
+  .explore-filter-row2 input,
+  .explore-filter-row2 select {
+    flex: 1;
+  }
+
+  .explore-results-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* --- BIZ DASHBOARD KANBAN: horizontal scroll --- */
+  .kanban-board {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    padding-bottom: 8px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    grid-template-columns: unset !important;
+  }
+  .kanban-board::-webkit-scrollbar { display: none; }
+
+  .kanban-column {
+    min-width: 250px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* --- METRIC CARDS --- */
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* --- QUICK ACTION GRID (biz) --- */
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==============================
+   MEDIUM (tablet, 769–1024px)
+============================== */
+@media (min-width: 769px) {
+  .hero-inner {
+    padding: 60px var(--page-px-md);
+  }
+
+  .home-category-grid {
+    padding: 28px var(--page-px-md) 36px;
+  }
+
+  body {
+    padding-bottom: 0;
+  }
+}
+
+/* ==============================
+   LARGE DESKTOP (>1024px)
+============================== */
+@media (min-width: 1025px) {
+  .hero-inner {
+    padding: 80px var(--page-px-lg);
+  }
+}
