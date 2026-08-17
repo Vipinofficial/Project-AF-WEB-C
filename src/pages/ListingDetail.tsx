@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Listing, Review } from '../types';
+import type { Listing, Review } from '@arli/contracts';
 import { ReviewCard } from '../components/ReviewCard';
 
 interface ListingDetailProps {

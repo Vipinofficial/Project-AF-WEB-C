@@ -1,10 +1,14 @@
 import React from 'react';
-import type { CartItem } from '../types';
+import type { CartItem } from '@arli/contracts';
+import { type CartTotals, lineTotal } from '@arli/core';
+import type { CustomerDictionary } from '@arli/i18n';
 
 interface CartProps {
   cartItems: CartItem[];
-  onRemoveItem: (id: number) => void;
-  t: any;
+  /** Computed once in App and shared with Checkout, so the two cannot diverge. */
+  totals: CartTotals;
+  onRemoveItem: (id: string) => void;
+  t: CustomerDictionary;
   onProceed: () => void;
   promo: string;
   promoApplied: boolean;
@@ -17,6 +21,7 @@ interface CartProps {
 
 export const Cart: React.FC<CartProps> = ({
   cartItems,
+  totals,
   onRemoveItem,
   t,
   onProceed,
@@ -29,10 +34,7 @@ export const Cart: React.FC<CartProps> = ({
   onStartShopping,
 }) => {
   const hasCart = cartItems.length > 0;
-  const subtotal = cartItems.reduce((acc, item) => acc + item.total, 0);
-  const discountAmt = promoApplied && promoOk ? Math.round(subtotal * 0.1) : 0;
-  const total = subtotal - discountAmt;
-  const earnPoints = Math.round(total / 100);
+  const { subtotal, discount: discountAmt, total, points: earnPoints } = totals;
 
   return (
     <>
@@ -90,7 +92,7 @@ export const Cart: React.FC<CartProps> = ({
 
                   {/* Price + remove */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-primary)' }}>₹{ci.total}</span>
+                    <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-primary)' }}>₹{lineTotal(ci)}</span>
                     <button
                       onClick={() => onRemoveItem(ci.id)}
                       style={{

@@ -3,29 +3,8 @@
 /* ==============================
    DESIGN TOKENS
 ============================== */
-:root {
-  --bg-primary: #FAF6F0;
-  --bg-secondary: #F4ECE1;
-  --border-color: #E4DBC8;
-  --border-focus: #1A2542;
-  --text-primary: #1A2542;
-  --text-secondary: #4A5568;
-  --text-muted: #718096;
-  --color-primary: #1A2542;
-  --color-primary-hover: #111827;
-  --color-accent: #C2492F;
-  --color-accent-hover: #9B3823;
-  --color-gold: #D4AF37;
-  --color-warning: #D4AF37;
-  --color-success: #1E4D3B;
-  --color-placeholder: #A0AEC0;
-  --color-card-bg: #FFFFFF;
-
-  /* Spacing */
-  --page-px: 16px;
-  --page-px-md: 24px;
-  --page-px-lg: 80px;
-}
+/* Design tokens now come from @arli/tokens (imported in main.tsx).
+   Edit packages/tokens/src/tokens.ts and run `npm run build:tokens`. */
 
 /* ==============================
    BASE RESET (MOBILE-FIRST)

@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import type { CartItem } from '../types';
+import type { CartItem } from '@arli/contracts';
+import { type CartTotals, lineTotal } from '@arli/core';
+import type { CustomerDictionary } from '@arli/i18n';
+import { api } from '../api';
 
 interface CheckoutProps {
   cartItems: CartItem[];
-  t: any;
+  /** Shared with Cart — previously Checkout recomputed this and dropped the promo. */
+  totals: CartTotals;
+  t: CustomerDictionary;
   onClearCart: () => void;
   onToast: (msg: string) => void;
   onNavigate: (screen: string) => void;
@@ -12,6 +17,7 @@ interface CheckoutProps {
 
 export const Checkout: React.FC<CheckoutProps> = ({
   cartItems,
+  totals,
   t,
   onClearCart,
   onToast,
@@ -26,40 +32,38 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const [earnedPoints, setEarnedPoints] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.total, 0);
-  const total = subtotal;
+  const { subtotal, discount, total, points: pts } = totals;
 
   const handlePlaceOrder = () => {
     if (!name.trim() || !address.trim() || !pincode.trim()) {
-      onToast(t.enterDetails || 'Please fill in all address details');
+      onToast(t.enterDetails);
       return;
     }
     setLoading(true);
 
-    const generatedId = `ARL-${Math.floor(1000 + Math.random() * 9000)}`;
-    const pts = Math.round(total / 100);
+    const summary = cartItems.map((c) => `${c.name} (x${c.qty})`).join(', ');
 
-    const payload = {
-      cust: { en: name, hi: name },
-      item: { en: cartItems.map(c => `${c.name} (x${c.qty})`).join(', '), hi: cartItems.map(c => `${c.name} (x${c.qty})`).join(', ') },
-      qty: cartItems.reduce((sum, c) => sum + c.qty, 0),
-      amt: total,
-      meas: cartItems.some(c => c.hasMeas),
-      status: 0,
-    };
-
-    fetch('http://localhost:5000/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-      .then(() => {
-        setOrderId(generatedId);
+    api.orders
+      .create({
+        cust: { en: name, hi: name },
+        item: { en: summary, hi: summary },
+        qty: cartItems.reduce((sum, c) => sum + c.qty, 0),
+        // The DISCOUNTED total. This previously posted the full subtotal, so an
+        // applied promo was shown to the customer and then silently ignored.
+        amt: total,
+        meas: cartItems.some((c) => c.hasMeas),
+        status: 0,
+      })
+      .then((order) => {
+        // Use the id the server actually stored. The old code generated its own
+        // `ARL-xxxx` client-side and displayed that, while the API generated a
+        // different one — so the id shown to the customer was not in the database.
+        setOrderId(order.id);
         setEarnedPoints(pts);
         onAddPoints(pts);
         setScreen('success');
         onClearCart();
-        onToast(t.orderPlaced || 'Order placed successfully!');
+        onToast(t.orderPlaced);
       })
       .catch(() => onToast('Error sending order. Please try again.'))
       .finally(() => setLoading(false));
@@ -204,9 +208,21 @@ export const Checkout: React.FC<CheckoutProps> = ({
             {cartItems.map((ci) => (
               <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', color: 'var(--text-secondary)', padding: '5px 0' }}>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{ci.name} × {ci.qty}</span>
-                <span style={{ fontWeight: 600, flexShrink: 0 }}>₹{ci.total}</span>
+                <span style={{ fontWeight: 600, flexShrink: 0 }}>₹{lineTotal(ci)}</span>
               </div>
             ))}
+            {discount > 0 && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', color: 'var(--text-secondary)', padding: '5px 0', borderTop: '1px solid var(--border-color)', marginTop: '8px' }}>
+                  <span>{t.subtotal}</span>
+                  <span style={{ fontWeight: 600 }}>₹{subtotal}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', color: 'var(--color-success)', padding: '5px 0' }}>
+                  <span>{t.discount} ({totals.appliedCode})</span>
+                  <span style={{ fontWeight: 700 }}>−₹{discount}</span>
+                </div>
+              </>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: 800, padding: '10px 0 4px', borderTop: '1px solid var(--border-color)', marginTop: '8px' }}>
               <span>{t.total}</span>
               <span style={{ color: 'var(--color-primary)' }}>₹{total}</span>

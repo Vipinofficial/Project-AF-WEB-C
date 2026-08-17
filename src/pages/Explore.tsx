@@ -1,5 +1,7 @@
 import React from 'react';
-import type { Listing } from '../types';
+import type { CategoryFilter, Listing } from '@arli/contracts';
+import { filterListings } from '@arli/core';
+import type { Lang } from '@arli/i18n';
 import { ListingCard } from '../components/ListingCard';
 import { SEOHead } from '../components/SEOHead';
 
@@ -41,20 +43,12 @@ export const Explore: React.FC<ExploreProps> = ({
     { id: 'service', label: t.catService || 'Tailoring' },
   ];
 
-  const filtered = listings.filter((item) => {
-    if (cat !== 'all' && item.cat !== cat) return false;
-    const maxVal = Number(priceMax);
-    if (maxVal > 0 && item.price > maxVal) return false;
-    if (pincode.trim() && !item.pincode.startsWith(pincode.trim())) return false;
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      const matchName = item.name[lang].toLowerCase().includes(q);
-      const matchShop = item.shop[lang].toLowerCase().includes(q);
-      const matchDesc = item.desc[lang].toLowerCase().includes(q);
-      if (!matchName && !matchShop && !matchDesc) return false;
-    }
-    return true;
-  });
+  // Shared with the native Explore screen via @arli/core.
+  const filtered = filterListings(
+    listings,
+    { query, pincode, priceMax: Number(priceMax), cat: cat as CategoryFilter },
+    lang as Lang,
+  );
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') onSearch();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Listing } from '../types';
+import type { Listing } from '@arli/contracts';
 import { ListingCard } from '../components/ListingCard';
 import { SEOHead } from '../components/SEOHead';
 import { FAQSection } from '../components/FAQSection';
