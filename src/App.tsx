@@ -16,11 +16,21 @@ import { Login } from './pages/Login';
 import { Checkout } from './pages/Checkout';
 import { Chat } from './pages/Chat';
 
+const PINCODE_KEY = 'arli.deliveryPincode';
+
 export default function App() {
   const [screen, setScreen] = useState<string>('home');
   const [lang, setLang] = useState<Lang>('en');
   const [query, setQuery] = useState('');
-  const [pincode, setPincode] = useState('');
+  // ERR-102: the delivery pincode is user location data — kept in localStorage
+  // on this device only, never sent anywhere but the catalogue filter.
+  const [pincode, setPincode] = useState(() => {
+    try {
+      return localStorage.getItem(PINCODE_KEY) ?? '';
+    } catch {
+      return '';
+    }
+  });
   const [priceMax, setPriceMax] = useState('0');
   const [cat, setCat] = useState('all');
 
@@ -71,6 +81,21 @@ export default function App() {
       cancelled = true;
     };
   }, []);
+
+  const persistPincode = (value: string) => {
+    setPincode(value);
+    try {
+      localStorage.setItem(PINCODE_KEY, value);
+    } catch {
+      // Private browsing or storage disabled — the filter still works this session.
+    }
+  };
+
+  /** From the header picker: set the location AND show what's nearby. */
+  const handlePincodeChange = (value: string) => {
+    persistPincode(value);
+    setScreen('explore');
+  };
 
   const triggerToast = (msg: string) => {
     setToastMsg(msg);
@@ -141,6 +166,11 @@ export default function App() {
         hasCart={cart.length > 0}
         loggedIn={loggedIn}
         points={points}
+        pincode={pincode}
+        onPincodeChange={handlePincodeChange}
+        listings={listings}
+        lang={lang}
+        onSelectListing={handleSelectListing}
         onQueryChange={setQuery}
         onSearch={() => setScreen('explore')}
         onNavigate={handleNavigate}
@@ -186,7 +216,7 @@ export default function App() {
             t={t}
             lang={lang}
             onQueryChange={setQuery}
-            onPincodeChange={setPincode}
+            onPincodeChange={persistPincode}
             onPriceMaxChange={setPriceMax}
             onCatChange={setCat}
             onSelectListing={handleSelectListing}
