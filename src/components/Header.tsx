@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useDeferredValue, useState } from 'react';
 import type { CustomerDictionary, Lang } from '@arli/i18n';
 import type { Listing } from '@arli/contracts';
 import { suggestSearch } from '@arli/core';
@@ -57,8 +57,9 @@ export const Header: React.FC<HeaderProps> = ({
   // ERR-103: suggestion dropdown, built from listings already in memory.
   const [sugOpen, setSugOpen] = useState(false);
   const [sugIndex, setSugIndex] = useState(-1);
+  const deferredQuery = useDeferredValue(query);
   const suggestions = sugOpen
-    ? suggestSearch(listings, query, lang, t as unknown as Record<string, string>)
+    ? suggestSearch(listings, deferredQuery, lang, t as unknown as Record<string, string>)
     : [];
 
   const chooseSuggestion = (index: number) => {

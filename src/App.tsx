@@ -32,10 +32,13 @@ export default function App() {
     }
   });
   const [priceMax, setPriceMax] = useState('0');
+  const [priceMin, setPriceMin] = useState('');
   const [cat, setCat] = useState('all');
 
   const [listings, setListings] = useState<Listing[]>([]);
-  const [listingsError, setListingsError] = useState<string | null>(null);
+  const [listingsError, setListingsError] =
+    useState<'serverUnreachable' | 'loadFailed' | null>(null);
+  const [listingsLoading, setListingsLoading] = useState(true);
   const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -72,10 +75,11 @@ export default function App() {
         // the old code collapsed both into an empty list.
         setListings([]);
         setListingsError(
-          err instanceof ApiError && err.kind === 'network'
-            ? 'Cannot reach the ARLI server.'
-            : 'Could not load listings.',
+          err instanceof ApiError && err.kind === 'network' ? 'serverUnreachable' : 'loadFailed',
         );
+      })
+      .finally(() => {
+        if (!cancelled) setListingsLoading(false);
       });
     return () => {
       cancelled = true;
@@ -189,7 +193,7 @@ export default function App() {
               fontSize: '13px', fontWeight: 600,
             }}
           >
-            {listingsError}
+            {t[listingsError]}
           </p>
         )}
 
@@ -212,12 +216,15 @@ export default function App() {
             query={query}
             pincode={pincode}
             priceMax={priceMax}
+            priceMin={priceMin}
             cat={cat}
+            loading={listingsLoading}
             t={t}
             lang={lang}
             onQueryChange={setQuery}
             onPincodeChange={persistPincode}
             onPriceMaxChange={setPriceMax}
+            onPriceMinChange={setPriceMin}
             onCatChange={setCat}
             onSelectListing={handleSelectListing}
             onSearch={() => {}}
