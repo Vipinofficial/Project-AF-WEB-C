@@ -602,3 +602,77 @@ h1, h2, h3 {
     padding: 80px var(--page-px-lg);
   }
 }
+
+/* ==============================
+   ACCESSIBILITY BASELINE
+   Added from UI-UX-BACKLOG.md items #4, #6, #7.
+============================== */
+
+/* #6 — Keyboard focus was effectively invisible: the whole app had one
+   :focus-visible rule. This gives every control a consistent, high-contrast
+   ring, and only for keyboard users so mouse clicks stay clean. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Never remove the ring without replacing it. */
+:where(a, button, input, select, textarea):focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* #4 — Minimum touch target. Apple asks for 44px, Android for 48dp. Several
+   controls sat at 18–38px. `min-height` alone would stretch layouts, so this
+   pairs it with centring. Opt out with .allow-small-target where a control is
+   genuinely decorative. */
+button:not(.allow-small-target),
+[role='button']:not(.allow-small-target),
+input[type='submit'],
+input[type='button'] {
+  min-height: 44px;
+}
+
+/* Inline text links inside prose should not be stretched to 44px. */
+a.inline-link {
+  min-height: 0;
+}
+
+/* Inputs are targets too. */
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  min-height: 44px;
+}
+
+/* Checkboxes and radios get a larger hit area without growing visually. */
+input[type='checkbox'],
+input[type='radio'] {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* #7 — 27 animation declarations and no way out. Respect the OS setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Screen-reader-only text, for labelling icon-only controls. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

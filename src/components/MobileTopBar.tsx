@@ -75,7 +75,7 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({ cartCount, onNavigat
           cursor: 'pointer',
           color: 'var(--color-primary)',
           position: 'relative',
-          minHeight: '38px',
+          minHeight: '44px',
           backgroundColor: cartCount > 0 ? '#FAF6F0' : 'transparent',
         }}
         aria-label="Cart"

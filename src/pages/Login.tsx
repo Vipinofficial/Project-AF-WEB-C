@@ -61,12 +61,12 @@ export const Login: React.FC<LoginProps> = ({ t, onLoginSuccess, onToast, lang }
             <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', margin: '0 0 24px' }}>
               {t.loginSub}
             </p>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <label htmlFor="login-field-1" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t.phoneLabel}
             </label>
             <div style={{ display: 'flex', gap: '8px', margin: '6px 0 18px' }}>
               <span style={{ border: '1.5px solid var(--border-color)', borderRadius: '10px', padding: '12px 12px', fontSize: '14px', backgroundColor: '#F5EFE1', color: 'var(--text-secondary)', fontWeight: 600 }}>+91</span>
-              <input
+              <input id="login-field-1"
                 value={phone}
                 onChange={handlePhoneChange}
                 placeholder="98765 43210"

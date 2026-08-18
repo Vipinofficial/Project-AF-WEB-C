@@ -123,9 +123,9 @@ export const ListingDetail: React.FC<ListingDetailProps> = ({
               {item.cat === 'fabric' ? t.qtyMeters : t.qtyPieces}
             </span>
             <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid var(--border-color)', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff' }}>
-              <button onClick={qtyMinus} style={{ width: '38px', height: '38px', border: 'none', background: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--color-primary)' }}>−</button>
+              <button onClick={qtyMinus} aria-label={t.qtyDecrease} style={{ width: '44px', height: '44px', border: 'none', background: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--color-primary)' }}>−</button>
               <span style={{ width: '44px', textAlign: 'center', fontSize: '15px', fontWeight: 700 }}>{qty}</span>
-              <button onClick={qtyPlus} style={{ width: '38px', height: '38px', border: 'none', background: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--color-primary)' }}>+</button>
+              <button onClick={qtyPlus} aria-label={t.qtyIncrease} style={{ width: '44px', height: '44px', border: 'none', background: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--color-primary)' }}>+</button>
             </div>
             <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
               {t.subtotal}: <b style={{ color: 'var(--text-primary)' }}>₹{item.price * qty}</b>

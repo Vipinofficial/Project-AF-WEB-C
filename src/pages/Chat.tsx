@@ -130,6 +130,7 @@ export const Chat: React.FC<ChatProps> = ({ t, lang, onToast, initialShopName })
             />
             <button
               onClick={handleSend}
+              aria-label={t.sendMessage}
               style={{ backgroundColor: 'var(--color-accent)', color: '#fff', border: 'none', fontSize: '14px', fontWeight: 700, cursor: 'pointer', padding: '0 22px', borderRadius: '999px' }}
             >
               ➤

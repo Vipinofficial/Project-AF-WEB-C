@@ -155,10 +155,10 @@ export const Header: React.FC<HeaderProps> = ({
                   boxShadow: '0 12px 32px rgba(26,37,66,0.16)',
                 }}
               >
-                <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                <label htmlFor="header-field-1" style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
                   {t.deliverTo}
                 </label>
-                <input
+                <input id="header-field-1"
                   value={pinDraft}
                   onChange={(e) => setPinDraft(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
                   onKeyDown={(e) => e.key === 'Enter' && applyPincode()}
