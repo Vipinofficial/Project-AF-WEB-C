@@ -100,6 +100,10 @@ export const Header: React.FC<HeaderProps> = ({
       borderBottom: '1px solid var(--border-color)',
     }}>
       <div style={{
+        // Without width:100% the container collapses to its content, so the
+        // logo and the nav bunched together mid-bar instead of sitting at
+        // opposite ends.
+        width: '100%',
         maxWidth: '1180px',
         margin: '0 auto',
         padding: '0 24px',
