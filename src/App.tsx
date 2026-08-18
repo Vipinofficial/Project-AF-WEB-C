@@ -144,6 +144,11 @@ export default function App() {
     setScreen('cart');
   };
 
+  const handleCartQtyChange = (id: string, qty: number) => {
+    if (qty < 1) return;
+    setCart((prev) => prev.map((item) => (item.id === id ? { ...item, qty } : item)));
+  };
+
   const handleRemoveCartItem = (id: string) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
@@ -245,6 +250,7 @@ export default function App() {
             cartItems={cart}
             totals={totals}
             onRemoveItem={handleRemoveCartItem}
+            onQtyChange={handleCartQtyChange}
             t={t}
             onProceed={() => handleNavigate(loggedIn ? 'checkout' : 'login')}
             promo={promo}

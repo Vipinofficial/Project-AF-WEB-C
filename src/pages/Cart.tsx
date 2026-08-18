@@ -8,6 +8,9 @@ interface CartProps {
   /** Computed once in App and shared with Checkout, so the two cannot diverge. */
   totals: CartTotals;
   onRemoveItem: (id: string) => void;
+  /** #2 — quantity was fixed at add-to-cart time; changing it meant removing
+   *  the line and losing its attached measurements and design upload. */
+  onQtyChange: (id: string, qty: number) => void;
   t: CustomerDictionary;
   onProceed: () => void;
   promo: string;
@@ -23,6 +26,7 @@ export const Cart: React.FC<CartProps> = ({
   cartItems,
   totals,
   onRemoveItem,
+  onQtyChange,
   t,
   onProceed,
   promo,
@@ -88,6 +92,35 @@ export const Cart: React.FC<CartProps> = ({
                         📎 {t.designAttached || 'Design attached'}
                       </span>
                     )}
+                  </div>
+
+                  {/* Quantity stepper (#2) */}
+                  <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid var(--border-color)', borderRadius: '999px', overflow: 'hidden', alignSelf: 'center' }}>
+                    <button
+                      onClick={() => onQtyChange(ci.id, ci.qty - 1)}
+                      disabled={ci.qty <= 1}
+                      aria-label={t.qtyDecrease}
+                      style={{
+                        width: '44px', height: '44px', border: 'none', background: 'none',
+                        fontSize: '18px', fontWeight: 700, color: 'var(--color-primary)',
+                        cursor: ci.qty <= 1 ? 'not-allowed' : 'pointer', opacity: ci.qty <= 1 ? 0.4 : 1,
+                      }}
+                    >
+                      −
+                    </button>
+                    <span aria-live="polite" style={{ minWidth: '32px', textAlign: 'center', fontSize: '14px', fontWeight: 700 }}>
+                      {ci.qty}
+                    </span>
+                    <button
+                      onClick={() => onQtyChange(ci.id, ci.qty + 1)}
+                      aria-label={t.qtyIncrease}
+                      style={{
+                        width: '44px', height: '44px', border: 'none', background: 'none',
+                        fontSize: '18px', fontWeight: 700, color: 'var(--color-primary)', cursor: 'pointer',
+                      }}
+                    >
+                      +
+                    </button>
                   </div>
 
                   {/* Price + remove */}
