@@ -11,11 +11,11 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "@arli/api-client": "*",
-    "@arli/contracts": "*",
-    "@arli/core": "*",
-    "@arli/i18n": "*",
-    "@arli/tokens": "*",
+    "@arli/api-client": "file:./vendor/api-client",
+    "@arli/contracts": "file:./vendor/contracts",
+    "@arli/core": "file:./vendor/core",
+    "@arli/i18n": "file:./vendor/i18n",
+    "@arli/tokens": "file:./vendor/tokens",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
