@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 interface LoginProps {
   t: any;
-  onLoginSuccess: () => void;
+  onLoginSuccess: (phone: string) => void;
   onToast: (msg: string) => void;
   lang: 'en' | 'hi';
 }
@@ -23,7 +23,7 @@ export const Login: React.FC<LoginProps> = ({ t, onLoginSuccess, onToast, lang }
 
   const handleVerifyOtp = () => {
     if (otp.length === 4) {
-      onLoginSuccess();
+      onLoginSuccess(phone.trim());
       onToast(lang === 'hi' ? 'लॉगिन सफल!' : 'Login successful!');
     } else {
       onToast(lang === 'hi' ? '4 अंक डालें' : 'Enter 4 digits');
@@ -31,7 +31,7 @@ export const Login: React.FC<LoginProps> = ({ t, onLoginSuccess, onToast, lang }
   };
 
   const handleThirdPartyLogin = (provider: 'google' | 'devfrogs') => {
-    onLoginSuccess();
+    onLoginSuccess(phone.trim());
     onToast(lang === 'hi' ? `${provider} लॉगिन सफल!` : `${provider} login successful!`);
   };
 

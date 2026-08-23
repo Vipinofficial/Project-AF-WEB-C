@@ -52,8 +52,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       ),
     },
     {
-      id: loggedIn ? 'account' : 'login',
-      label: loggedIn ? t.navAccount : t.navLogin,
+      // 'profile', not 'home' — reusing 'home' here once collided with the
+      // real Home tab. Now a real Profile screen exists (phone, points, logout).
+      id: loggedIn ? 'profile' : 'login',
+      label: loggedIn ? t.navProfile : t.navLogin,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'var(--color-primary)' : 'none'} stroke={active ? 'var(--color-primary)' : 'var(--text-muted)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -71,7 +73,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         return (
           <button
             key={tab.id}
-            onClick={() => onNavigate(tab.id === 'account' ? 'home' : tab.id)}
+            onClick={() => onNavigate(tab.id)}
             className={`mobile-floating-btn ${isActive ? 'active' : ''}`}
             aria-label={tab.label}
             style={isAI ? {
