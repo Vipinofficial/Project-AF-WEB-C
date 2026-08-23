@@ -118,7 +118,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', userSelect: 'none', lineHeight: 1 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
               <span style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Instrument Serif', Georgia, serif", color: 'var(--color-primary)', letterSpacing: '0.5px', lineHeight: 1 }}>ARLI</span>
-              <span style={{ fontSize: '12.5px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--color-primary)', lineHeight: 1 }}>FASHION</span>
+              <span style={{ fontSize: '12.5px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--color-primary)', lineHeight: 1 }}>BRAND</span>
             </div>
             <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', letterSpacing: '0.4px', fontWeight: 500, fontStyle: 'italic', marginTop: '2px', lineHeight: 1 }}>by fashion vendors</span>
           </div>

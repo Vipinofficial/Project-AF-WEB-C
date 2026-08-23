@@ -101,7 +101,7 @@ export const Explore: React.FC<ExploreProps> = ({
   return (
     <main style={{ maxWidth: '1180px', margin: '0 auto', padding: '24px 16px 80px' }} className="animate-fade-up">
       <SEOHead
-        title={`Explore Local Fashion Bazaar ${pincode ? `in Pincode ${pincode}` : ''} | ARLI FASHION`}
+        title={`Explore Local Fashion Bazaar ${pincode ? `in Pincode ${pincode}` : ''} | ARLI BRAND`}
         description={`Browse ${filtered.length} local fashion listings, boutique fabrics, and tailors in India.`}
         jsonLd={itemListSchema}
       />

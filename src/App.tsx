@@ -15,6 +15,7 @@ import { Cart } from './pages/Cart';
 import { Login } from './pages/Login';
 import { Checkout } from './pages/Checkout';
 import { Chat } from './pages/Chat';
+import { AIFeatures } from './pages/AIFeatures';
 
 const PINCODE_KEY = 'arli.deliveryPincode';
 
@@ -295,6 +296,9 @@ export default function App() {
             onToast={triggerToast}
             initialShopName={activeListing?.shop[lang]}
           />
+        )}
+        {screen === 'aiFeatures' && (
+          <AIFeatures t={t} onBrowse={() => setScreen('explore')} />
         )}
       </main>
 

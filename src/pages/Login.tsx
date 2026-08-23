@@ -49,7 +49,7 @@ export const Login: React.FC<LoginProps> = ({ t, onLoginSuccess, onToast, lang }
         <div style={{ textAlign: 'center', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', userSelect: 'none' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
             <span style={{ fontSize: '26px', fontWeight: 700, fontFamily: "'Instrument Serif', Georgia, serif", color: 'var(--color-primary)', letterSpacing: '0.5px', lineHeight: 1 }}>ARLI</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--color-primary)', lineHeight: 1 }}>FASHION</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--color-primary)', lineHeight: 1 }}>BRAND</span>
           </div>
           <span style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.4px', fontWeight: 500, fontStyle: 'italic', marginTop: '2px', lineHeight: 1 }}>by fashion vendors</span>
         </div>

@@ -147,7 +147,7 @@ export const Home: React.FC<HomeProps> = ({
   return (
     <main className="animate-fade-up" style={{ overflowX: 'hidden' }}>
       <SEOHead
-        title="ARLI FASHION - by fashion vendors | Local Indian Fashion Bazaar"
+        title="ARLI BRAND - by fashion vendors | Local Indian Fashion Bazaar"
         description="Find local boutique fabrics, custom tailors, and ethnic fashion vendors in your pincode area across India. Doorstep measurements and instant reorders."
         keywords="ARLI fashion, local tailors near me, boutique fabrics India, custom stitching, pincode fashion bazaar"
       />

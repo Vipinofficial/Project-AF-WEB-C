@@ -8,8 +8,8 @@ interface FAQItem {
 export const FAQSection: React.FC = () => {
   const faqs: FAQItem[] = [
     {
-      question: 'What is ARLI FASHION and how does it work?',
-      answer: 'ARLI FASHION is a hyper-local fashion marketplace in India that connects customers directly with local fashion vendors, boutique fabric stores, and custom tailors in their pincode area. You can browse nearby shops, chat with artisans, share your body measurements, and order custom ethnic or modern garments.',
+      question: 'What is ARLI BRAND and how does it work?',
+      answer: 'ARLI BRAND is a hyper-local fashion marketplace in India that connects customers directly with local fashion vendors, boutique fabric stores, and custom tailors in their pincode area. You can browse nearby shops, chat with artisans, share your body measurements, and order custom ethnic or modern garments.',
     },
     {
       question: 'How do doorstep tailoring measurements work on ARLI?',
@@ -20,8 +20,8 @@ export const FAQSection: React.FC = () => {
       answer: 'Yes! ARLI allows seamless pairing of boutique fabrics (such as Chanderi, Banarasi silk, cotton, embroidered net) from local fabric merchants directly with verified local tailors for bespoke stitching in one unified order.',
     },
     {
-      question: 'Which Indian cities and pincodes does ARLI FASHION support?',
-      answer: 'ARLI FASHION supports local vendors, boutiques, and tailors across major hubs including Jaipur, Surat, Ahmedabad, Delhi-NCR, Mumbai, Bengaluru, Lucknow, Kolkata, and tier-2 fashion clusters by pincode search.',
+      question: 'Which Indian cities and pincodes does ARLI BRAND support?',
+      answer: 'ARLI BRAND supports local vendors, boutiques, and tailors across major hubs including Jaipur, Surat, Ahmedabad, Delhi-NCR, Mumbai, Bengaluru, Lucknow, Kolkata, and tier-2 fashion clusters by pincode search.',
     },
   ];
 

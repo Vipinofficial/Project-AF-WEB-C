@@ -116,7 +116,7 @@ h1, h2, h3 {
 .mobile-floating-nav {
   display: none;
   position: fixed;
-  bottom: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   left: 14px;
   right: 14px;
   max-width: 440px;
@@ -505,7 +505,10 @@ h1, h2, h3 {
   .sticky-mobile-cta {
     display: flex;
     position: fixed;
-    bottom: 82px;   /* sits just above the floating nav */
+    /* Stacked above the floating nav (60px tall + its own 14px offset),
+       plus this bar's own inset — both need the same safe-area adjustment
+       or they drift apart on devices with a home-indicator strip. */
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
     left: 0;
     right: 0;
     padding: 10px 16px;

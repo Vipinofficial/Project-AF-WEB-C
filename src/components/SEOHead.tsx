@@ -8,7 +8,7 @@ interface SEOHeadProps {
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'ARLI FASHION - by fashion vendors | Hyper-Local Indian Fashion Bazaar',
+  title = 'ARLI BRAND - by fashion vendors | Hyper-Local Indian Fashion Bazaar',
   description = 'Discover local fashion vendors, boutique fabrics, custom tailoring, and ethnic garments by pincode across India.',
   keywords,
   jsonLd,

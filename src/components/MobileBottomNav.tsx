@@ -12,11 +12,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentScreen,
   loggedIn,
   onNavigate,
+  t,
 }) => {
   const tabs = [
     {
       id: 'home',
-      label: 'Home',
+      label: t.tabHome,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'var(--color-primary)' : 'none'} stroke={active ? 'var(--color-primary)' : 'var(--text-muted)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z" />
@@ -25,7 +26,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     },
     {
       id: 'explore',
-      label: 'Explore',
+      label: t.navExplore,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--color-primary)' : 'var(--text-muted)'} strokeWidth={active ? '2.2' : '1.8'} strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -34,9 +35,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       ),
     },
     {
-      // AI Stylist tab (replaces Cart)
-      id: 'chat',
-      label: 'AI Stylist',
+      // AI Features tab. Previously this and the tab below both had
+      // id: 'chat' — "AI Stylist" was a mislabeled duplicate of Chat, not a
+      // real destination, patched over with a separate tabKeys array just to
+      // dodge the resulting duplicate-React-key warning rather than fixing
+      // the actual duplicate navigation target. Chat itself is reached
+      // contextually from a listing's own page now, where it actually has a
+      // shop to talk to — a nav-level tap has no such context.
+      id: 'aiFeatures',
+      label: t.navAI,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? 'var(--color-gold)' : 'var(--text-muted)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           {/* Sparkle / AI star icon */}
@@ -45,18 +52,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       ),
     },
     {
-      id: 'chat',
-      label: 'Chat',
-      // using a different id mapping for the chat section visually — same route
-      icon: (active: boolean) => (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'var(--color-primary)' : 'none'} stroke={active ? 'var(--color-primary)' : 'var(--text-muted)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-      ),
-    },
-    {
-      id: loggedIn ? 'home' : 'login',
-      label: loggedIn ? 'Account' : 'Login',
+      id: loggedIn ? 'account' : 'login',
+      label: loggedIn ? t.navAccount : t.navLogin,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'var(--color-primary)' : 'none'} stroke={active ? 'var(--color-primary)' : 'var(--text-muted)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -66,18 +63,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     },
   ];
 
-  // Define unique keys separately to avoid duplicate 'chat' key issue
-  const tabKeys = ['home', 'explore', 'ai', 'chat', 'account'];
-
   return (
     <nav className="mobile-floating-nav" aria-label="Mobile Navigation">
-      {tabs.map((tab, index) => {
+      {tabs.map((tab) => {
         const isActive = currentScreen === tab.id;
-        const isAI = index === 2; // AI Stylist is index 2
+        const isAI = tab.id === 'aiFeatures';
         return (
           <button
-            key={tabKeys[index]}
-            onClick={() => onNavigate(tab.id)}
+            key={tab.id}
+            onClick={() => onNavigate(tab.id === 'account' ? 'home' : tab.id)}
             className={`mobile-floating-btn ${isActive ? 'active' : ''}`}
             aria-label={tab.label}
             style={isAI ? {
